@@ -1,7 +1,6 @@
-  (function(){
-
+(function() {
 angular.module('ui.grid')
-.factory('GridOptions', ['gridUtil','uiGridConstants', function(gridUtil,uiGridConstants) {
+.factory('GridOptions', ['gridUtil','uiGridConstants', function(gridUtil, uiGridConstants) {
 
   /**
    * @ngdoc function
@@ -25,8 +24,8 @@ angular.module('ui.grid')
    * To provide default options for all of the grids within your application, use an angular
    * decorator to modify the GridOptions factory.
    * <pre>
-   * app.config(function($provide){
-   *   $provide.decorator('GridOptions',function($delegate){
+   * app.config(function($provide) {
+   *   $provide.decorator('GridOptions',function($delegate) {
    *     var gridOptions;
    *     gridOptions = angular.copy($delegate);
    *     gridOptions.initialize = function(options) {
@@ -41,7 +40,7 @@ angular.module('ui.grid')
    * </pre>
    */
   return {
-    initialize: function( baseOptions ){
+    initialize: function( baseOptions ) {
       /**
        * @ngdoc function
        * @name onRegisterApi
@@ -114,7 +113,7 @@ angular.module('ui.grid')
        * </br>_field property can be used in place of name for backwards compatibility with 2.x_
        *  @example
        *
-       * <pre>var columnDefs = [{name:'field1'}, {name:'field2'}];</pre>
+       * <pre>var columnDefs = [{name: 'field1'}, {name: 'field2'}];</pre>
        *
        */
       baseOptions.columnDefs = baseOptions.columnDefs || [];
@@ -125,15 +124,25 @@ angular.module('ui.grid')
        * @description Definition / configuration of an individual column, which would typically be
        * one of many column definitions within the gridOptions.columnDefs array
        * @example
-       * <pre>{name:'field1', field: 'field1', filter: { term: 'xxx' }}</pre>
+       * <pre>{name: 'field1', field: 'field1', filter: { term: 'xxx' }}</pre>
        *
        */
 
+      /**
+       * @ngdoc object
+       * @name enableGridMenu
+       * @propertyOf ui.grid.class:GridOptions
+       * @description Takes a boolean that adds a settings icon in the top right of the grid, which floats above
+       * the column header, when true. The menu by default gives access to show/hide columns, but can be
+       * customised to show additional actions.
+       *
+       * See the {@link #!/tutorial/121_grid_menu Grid Menu tutorial} for more detailed information.
+       */
 
       /**
        * @ngdoc array
        * @name excludeProperties
-       * @propertyOf  ui.grid.class:GridOptions
+       * @propertyOf ui.grid.class:GridOptions
        * @description Array of property names in data to ignore when auto-generating column names.  Provides the
        * inverse of columnDefs - columnDefs is a list of columns to include, excludeProperties is a list of columns
        * to exclude.
@@ -206,13 +215,19 @@ angular.module('ui.grid')
        */
       baseOptions.showHeader = typeof(baseOptions.showHeader) !== "undefined" ? baseOptions.showHeader : true;
 
-      /* (NOTE): Don't show this in the docs. We only use it internally
+      /**
        * @ngdoc property
        * @name headerRowHeight
        * @propertyOf ui.grid.class:GridOptions
-       * @description The height of the header in pixels, defaults to 30
+       * @description The height of the header in pixels, defaults to 30.
+       * Although, we recommend that you alter header height with CSS rather than using this option:
        *
-       */
+       * <pre>
+       *     .grid .ui-grid-header-cell {
+       *         height: 60px;
+       *     }
+       * </pre>
+       **/
       if (!baseOptions.showHeader) {
         baseOptions.headerRowHeight = 0;
       }
@@ -307,11 +322,13 @@ angular.module('ui.grid')
        * Defaults to 4
        */
       baseOptions.excessRows = typeof(baseOptions.excessRows) !== "undefined" ? baseOptions.excessRows : 4;
+
       /**
        * @ngdoc property
        * @name scrollThreshold
        * @propertyOf ui.grid.class:GridOptions
-       * @description Defaults to 4
+       * @description Throttles the grid scrolling by the amount of rows set, which helps with smoothness of scrolling.
+       * Defaults to 4.
        */
       baseOptions.scrollThreshold = typeof(baseOptions.scrollThreshold) !== "undefined" ? baseOptions.scrollThreshold : 4;
 
@@ -323,14 +340,6 @@ angular.module('ui.grid')
        * Defaults to 4
        */
       baseOptions.excessColumns = typeof(baseOptions.excessColumns) !== "undefined" ? baseOptions.excessColumns : 4;
-      /**
-       * @ngdoc property
-       * @name horizontalScrollThreshold
-       * @propertyOf ui.grid.class:GridOptions
-       * @description Defaults to 4
-       */
-      baseOptions.horizontalScrollThreshold = typeof(baseOptions.horizontalScrollThreshold) !== "undefined" ? baseOptions.horizontalScrollThreshold : 2;
-
 
       /**
        * @ngdoc property
@@ -384,6 +393,13 @@ angular.module('ui.grid')
        * @propertyOf ui.grid.class:GridOptions
        * @description True by default. When enabled, this setting displays a column
        * menu within each column.
+       * By default column menu's trigger is hidden before mouse over, but you can always force it to be visible with CSS:
+       *
+       * <pre>
+       *  .ui-grid-column-menu-button {
+       *    display: block;
+       *  }
+       * </pre>
        */
       baseOptions.enableColumnMenus = baseOptions.enableColumnMenus !== false;
 
@@ -393,7 +409,7 @@ angular.module('ui.grid')
        * @propertyOf ui.grid.class:GridOptions
        * @description {@link ui.grid.service:uiGridConstants#properties_scrollbars uiGridConstants.scrollbars.ALWAYS} by default.
        * This settings controls the vertical scrollbar for the grid.
-       * Supported values: uiGridConstants.scrollbars.ALWAYS, uiGridConstants.scrollbars.NEVER
+       * Supported values: uiGridConstants.scrollbars.ALWAYS, uiGridConstants.scrollbars.NEVER, uiGridConstants.scrollbars.WHEN_NEEDED
        */
       baseOptions.enableVerticalScrollbar = typeof(baseOptions.enableVerticalScrollbar) !== "undefined" ? baseOptions.enableVerticalScrollbar : uiGridConstants.scrollbars.ALWAYS;
 
@@ -403,7 +419,7 @@ angular.module('ui.grid')
        * @propertyOf ui.grid.class:GridOptions
        * @description {@link ui.grid.service:uiGridConstants#properties_scrollbars uiGridConstants.scrollbars.ALWAYS} by default.
        * This settings controls the horizontal scrollbar for the grid.
-       * Supported values: uiGridConstants.scrollbars.ALWAYS, uiGridConstants.scrollbars.NEVER
+       * Supported values: uiGridConstants.scrollbars.ALWAYS, uiGridConstants.scrollbars.NEVER, uiGridConstants.scrollbars.WHEN_NEEDED
        */
       baseOptions.enableHorizontalScrollbar = typeof(baseOptions.enableHorizontalScrollbar) !== "undefined" ? baseOptions.enableHorizontalScrollbar : uiGridConstants.scrollbars.ALWAYS;
 
@@ -421,9 +437,11 @@ angular.module('ui.grid')
        * @ngdoc boolean
        * @name minimumColumnSize
        * @propertyOf ui.grid.class:GridOptions
-       * @description Columns can't be smaller than this, defaults to 10 pixels
+       * @description Sets the default minimum column width, in other words,
+       * it defines the default value for a column minWidth attribute if that is not otherwise specified.
+       * Should be a number. Defaults to 30 pixels.
        */
-      baseOptions.minimumColumnSize = typeof(baseOptions.minimumColumnSize) !== "undefined" ? baseOptions.minimumColumnSize : 10;
+      baseOptions.minimumColumnSize = typeof(baseOptions.minimumColumnSize) !== "undefined" ? baseOptions.minimumColumnSize : 30;
 
       /**
        * @ngdoc function
@@ -515,8 +533,5 @@ angular.module('ui.grid')
       return baseOptions;
     }
   };
-
-
 }]);
-
 })();

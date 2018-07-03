@@ -1,14 +1,14 @@
-describe('i18n Directives', function () {
-  var gridUtil;
-  var scope;
-  var element;
-  var uiGridController;
-  var recompile;
+describe('i18n Directives', function() {
+  var $compile, $rootScope, gridUtil, element, recompile, scope;
 
-  beforeEach(module('ui.grid'));
+  beforeEach(function() {
+    module('ui.grid');
 
-  beforeEach(inject(function ($rootScope, $compile, $controller, _gridUtil_, $templateCache, $timeout) {
-    gridUtil = _gridUtil_;
+    inject(function (_$rootScope_, _$compile_, _gridUtil_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+      gridUtil = _gridUtil_;
+    });
 
     scope = $rootScope.$new();
     scope.options = {};
@@ -24,45 +24,131 @@ describe('i18n Directives', function () {
 
     recompile = function () {
       $compile(element)(scope);
-      $rootScope.$digest();
+      $rootScope.$apply();
     };
-  }));
+  });
 
-
-  describe('ui-translate directive', function () {
-    it('should translate', function () {
-      element = angular.element('<div ui-i18n="en"><p ui-translate="search.placeholder"></p></div>');
+  describe('ui-translate directive', function() {
+    beforeEach(function() {
+      scope.lang = 'en';
+      element = angular.element('<div ui-i18n="lang"><p ui-translate="search.placeholder"></p></div>');
+      recompile();
+    });
+    afterEach(function() {
+      element.remove();
+    });
+    it('should translate', function() {
+      expect(element.find('p').text()).toBe('Search...');
+    });
+    it('should translate even if token is on the html instead of the attribute', function() {
+      element = angular.element('<div ui-i18n="en"><p ui-translate>search.placeholder</p></div>');
       recompile();
 
       expect(element.find('p').text()).toBe('Search...');
     });
+    it('should be able to interpolate languages and default to english when the language is not defined', function() {
+      element = angular.element('<div ui-i18n="{{lang}}"><p ui-translate="search.placeholder"></p></div>');
+      recompile();
+
+      expect(element.find('p').text()).toBe('Search...');
+    });
+    it('should be able to interpolate properties', function() {
+      scope.lang = 'en';
+      scope.property = 'search.placeholder';
+      element = angular.element('<div ui-i18n="{{lang}}"><p ui-translate="{{property}}"></p></div>');
+      recompile();
+
+      expect(element.find('p').text()).toBe('Search...');
+    });
+    it('should get missing text for missing property', function() {
+      element = angular.element('<div ui-i18n="en"><p ui-translate="search.bad.text"></p></div>');
+      recompile();
+
+      expect(element.find('p').text()).toBe('[MISSING]search.bad.text');
+    });
   });
 
-  describe('ui-t directive', function () {
-    it('should translate', function () {
+  describe('ui-t directive', function() {
+    afterEach(function() {
+      element.remove();
+    });
+    it('should translate', function() {
       element = angular.element('<div ui-i18n="en"><p ui-t="search.placeholder"></p></div>');
       recompile();
 
       expect(element.find('p').text()).toBe('Search...');
     });
+    it('should translate even if token is on the html instead of the attribute', function() {
+      element = angular.element('<div ui-i18n="en"><p ui-t>search.placeholder</p></div>');
+      recompile();
+
+      expect(element.find('p').text()).toBe('Search...');
+    });
+    it('should be able to interpolate languages and default to english when the language is not defined', function() {
+      element = angular.element('<div ui-i18n="{{lang}}"><p ui-t="search.placeholder"></p></div>');
+      recompile();
+
+      expect(element.find('p').text()).toBe('Search...');
+    });
+    it('should be able to interpolate properties', function() {
+      scope.lang = 'en';
+      scope.property = 'search.placeholder';
+      element = angular.element('<div ui-i18n="{{lang}}"><p ui-t="{{property}}"></p></div>');
+      recompile();
+
+      expect(element.find('p').text()).toBe('Search...');
+    });
+    it('should get missing text for missing property', function() {
+      element = angular.element('<div ui-i18n="en"><p ui-t="search.bad.text"></p></div>');
+      recompile();
+
+      expect(element.find('p').text()).toBe('[MISSING]search.bad.text');
+
+      $rootScope.$broadcast('$uiI18n');
+
+      expect(element.find('p').text()).toBe('[MISSING]search.bad.text');
+    });
   });
 
-  describe('t filter', function () {
-    it('should translate', function () {
+  describe('t filter', function() {
+    afterEach(function() {
+      element.remove();
+    });
+    it('should translate', function() {
       element = angular.element('<div ui-i18n="en"><p>{{"search.placeholder" | t}}</p></div>');
       recompile();
 
       expect(element.find('p').text()).toBe('Search...');
     });
+    it('should get missing text for missing property', function() {
+      element = angular.element('<div ui-i18n="en"><p>{{"search.bad.text" | t}}</p></div>');
+      recompile();
+
+      expect(element.find('p').text()).toBe('[MISSING]search.bad.text');
+    });
   });
 
-  describe('uiTranslate filter', function () {
-    it('should translate', function () {
+  describe('uiTranslate filter', function() {
+    afterEach(function() {
+      element.remove();
+    });
+    it('should translate', function() {
       element = angular.element('<div ui-i18n="en"><p>{{"search.placeholder" | uiTranslate}}</p></div>');
       recompile();
 
       expect(element.find('p').text()).toBe('Search...');
     });
-  });
+    it('should translate even without the ui-i18n directive', function() {
+      element = angular.element('<div><p>{{"search.placeholder" | uiTranslate:"en"}}</p></div>');
+      recompile();
 
+      expect(element.find('p').text()).toBe('Search...');
+    });
+    it('should get missing text for missing property', function() {
+      element = angular.element('<div ui-i18n="en"><p>{{"search.bad.text" | uiTranslate}}</p></div>');
+      recompile();
+
+      expect(element.find('p').text()).toBe('[MISSING]search.bad.text');
+    });
+  });
 });

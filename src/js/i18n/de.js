@@ -9,7 +9,8 @@
           aria: {
             defaultFilterLabel: 'Filter für Spalte',
             removeFilter: 'Filter löschen',
-            columnMenuButtonLabel: 'Spaltenmenü'
+            columnMenuButtonLabel: 'Spaltenmenü',
+            column: 'Spalte'
           },
           priority: 'Priorität:',
           filterLabel: "Filter für Spalte: "
@@ -21,6 +22,10 @@
           description: 'Ziehen Sie eine Spaltenüberschrift hierhin, um nach dieser Spalte zu gruppieren.'
         },
         search: {
+          aria: {
+            selected: 'Zeile markiert',
+            notSelected: 'Zeile nicht markiert'
+          },
           placeholder: 'Suche...',
           showingItems: 'Zeige Einträge:',
           selectedItems: 'Ausgewählte Einträge:',
@@ -65,11 +70,14 @@
           columns: 'Spalten:',
           importerTitle: 'Datei importieren',
           exporterAllAsCsv: 'Alle Daten als CSV exportieren',
-          exporterVisibleAsCsv: 'sichtbare Daten als CSV exportieren',
-          exporterSelectedAsCsv: 'markierte Daten als CSV exportieren',
+          exporterVisibleAsCsv: 'Sichtbare Daten als CSV exportieren',
+          exporterSelectedAsCsv: 'Markierte Daten als CSV exportieren',
           exporterAllAsPdf: 'Alle Daten als PDF exportieren',
-          exporterVisibleAsPdf: 'sichtbare Daten als PDF exportieren',
-          exporterSelectedAsPdf: 'markierte Daten als PDF exportieren',
+          exporterVisibleAsPdf: 'Sichtbare Daten als PDF exportieren',
+          exporterSelectedAsPdf: 'Markierte Daten als PDF exportieren',
+          exporterAllAsExcel: 'Alle Daten als Excel exportieren',
+          exporterVisibleAsExcel: 'Sichtbare Daten als Excel exportieren',
+          exporterSelectedAsExcel: 'Markierte Daten als Excel exportieren',
           clearAllFilters: 'Alle Filter zurücksetzen'
         },
         importer: {
@@ -83,12 +91,12 @@
           aria: {
             pageToFirst: 'Zum Anfang',
             pageBack: 'Seite zurück',
-            pageSelected: 'Ausgwählte Seite',
+            pageSelected: 'Ausgewählte Seite',
             pageForward: 'Seite vor',
             pageToLast: 'Zum Ende'
           },
           sizes: 'Einträge pro Seite',
-          totalItems: 'Einträge',
+          totalItems: 'Einträgen',
           through: 'bis',
           of: 'von'
         },

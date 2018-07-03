@@ -54,7 +54,7 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
       case "object":
         return rowSorter.basicSort;
       default:
-        throw new Error('No sorting function found for type:' + itemType);
+        throw new Error('No sorting function found for type: ' + itemType);
     }
   };
 
@@ -102,7 +102,7 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
    */
   rowSorter.basicSort = function basicSort(a, b) {
     var nulls = rowSorter.handleNulls(a, b);
-    if ( nulls !== null ){
+    if ( nulls !== null ) {
       return nulls;
     } else {
       if (a === b) {
@@ -127,7 +127,7 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
    */
   rowSorter.sortNumber = function sortNumber(a, b) {
     var nulls = rowSorter.handleNulls(a, b);
-    if ( nulls !== null ){
+    if ( nulls !== null ) {
       return nulls;
     } else {
       return a - b;
@@ -147,7 +147,7 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
    */
   rowSorter.sortNumberStr = function sortNumberStr(a, b) {
     var nulls = rowSorter.handleNulls(a, b);
-    if ( nulls !== null ){
+    if ( nulls !== null ) {
       return nulls;
     } else {
       var numA, // The parsed number form of 'a'
@@ -200,7 +200,7 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
    */
   rowSorter.sortAlpha = function sortAlpha(a, b) {
     var nulls = rowSorter.handleNulls(a, b);
-    if ( nulls !== null ){
+    if ( nulls !== null ) {
       return nulls;
     } else {
       var strA = a.toString().toLowerCase(),
@@ -223,13 +223,13 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
    */
   rowSorter.sortDate = function sortDate(a, b) {
     var nulls = rowSorter.handleNulls(a, b);
-    if ( nulls !== null ){
+    if ( nulls !== null ) {
       return nulls;
     } else {
       if (!(a instanceof Date)) {
         a = new Date(a);
       }
-      if (!(b instanceof Date)){
+      if (!(b instanceof Date)) {
         b = new Date(b);
       }
       var timeA = a.getTime(),
@@ -252,7 +252,7 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
    */
   rowSorter.sortBool = function sortBool(a, b) {
     var nulls = rowSorter.handleNulls(a, b);
-    if ( nulls !== null ){
+    if ( nulls !== null ) {
       return nulls;
     } else {
       if (a && b) {
@@ -285,7 +285,7 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
    * that.
    *
    * @param {Grid} grid the grid to consider
-   * @param {GridCol} col the column to find a function for
+   * @param {GridColumn} col the column to find a function for
    * @param {array} rows an array of grid rows.  Currently unused, but presumably in future
    * we might inspect the rows themselves to decide what sort of data might be there
    * @returns {function} the sort function chosen for the column
@@ -303,7 +303,7 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
       rowSorter.colSortFnCache[col.colDef.name] = col.sortingAlgorithm;
     }
     // Always default to sortAlpha when sorting after a cellFilter
-    else if ( col.sortCellFiltered && col.cellFilter ){
+    else if ( col.sortCellFiltered && col.cellFilter ) {
       sortFn = rowSorter.sortAlpha;
       rowSorter.colSortFnCache[col.colDef.name] = sortFn;
     }
@@ -399,20 +399,31 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
       return;
     }
 
-    if (grid.options.useExternalSorting){
+    if (grid.options.useExternalSorting) {
       return rows;
     }
 
     // Build the list of columns to sort by
     var sortCols = [];
+    var defaultSortCols = [];
     columns.forEach(function (col) {
       if (col.sort && !col.sort.ignoreSort && col.sort.direction && (col.sort.direction === uiGridConstants.ASC || col.sort.direction === uiGridConstants.DESC)) {
-        sortCols.push(col);
+        sortCols.push({
+          col: col,
+          sort: col.sort
+        });
+      } else if ( col.defaultSort && col.defaultSort.direction && (col.defaultSort.direction === uiGridConstants.ASC || col.defaultSort.direction === uiGridConstants.DESC) ) {
+        defaultSortCols.push({
+          col: col,
+          sort: col.defaultSort
+        });
       }
     });
 
     // Sort the "sort columns" by their sort priority
     sortCols = sortCols.sort(rowSorter.prioritySort);
+    defaultSortCols = defaultSortCols.sort(rowSorter.prioritySort);
+    sortCols = sortCols.concat(defaultSortCols);
 
     // Now rows to sort by, maintain original order
     if (sortCols.length === 0) {
@@ -423,7 +434,7 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
     var col, direction;
 
     // put a custom index field on each row, used to make a stable sort out of unstable sorts (e.g. Chrome)
-    var setIndex = function( row, idx ){
+    var setIndex = function( row, idx ) {
       row.entity.$$uiGridIndex = idx;
     };
     rows.forEach(setIndex);
@@ -440,14 +451,14 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
 
       while (tem === 0 && idx < sortCols.length) {
         // grab the metadata for the rest of the logic
-        col = sortCols[idx];
+        col = sortCols[idx].col;
         direction = sortCols[idx].sort.direction;
 
         sortFn = rowSorter.getSortFn(grid, col, r);
 
         var propA, propB;
 
-        if ( col.sortCellFiltered ){
+        if ( col.sortCellFiltered ) {
           propA = grid.getCellDisplayValue(rowA, col);
           propB = grid.getCellDisplayValue(rowB, col);
         } else {
@@ -479,7 +490,7 @@ module.service('rowSorter', ['$parse', 'uiGridConstants', function ($parse, uiGr
     var newRows = rows.sort(rowSortFn);
 
     // remove the custom index field on each row, used to make a stable sort out of unstable sorts (e.g. Chrome)
-    var clearIndex = function( row, idx ){
+    var clearIndex = function( row, idx ) {
        delete row.entity.$$uiGridIndex;
     };
     rows.forEach(clearIndex);

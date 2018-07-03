@@ -28,17 +28,17 @@
           if (grid.options.rowTemplate) {
             var rowTemplateFnPromise = $q.defer();
             grid.getRowTemplateFn = rowTemplateFnPromise.promise;
-            
+
             gridUtil.getTemplate(grid.options.rowTemplate)
               .then(
                 function (template) {
                   var rowTemplateFn = $compile(template);
                   rowTemplateFnPromise.resolve(rowTemplateFn);
                 },
-                function (res) {
+                function () {
                   // Todo handle response error here?
                   throw new Error("Couldn't fetch/use row template '" + grid.options.rowTemplate + "'");
-                });
+                }).catch(angular.noop);
           }
 
           grid.registerColumnBuilder(service.defaultColumnBuilder);
@@ -50,10 +50,10 @@
           grid.registerRowsProcessor(function allRowsVisible(rows) {
             rows.forEach(function (row) {
               row.evaluateRowVisibility( true );
-            }, 50);
+            });
 
             return rows;
-          });
+          }, 50);
 
           grid.registerColumnsProcessor(function applyColumnVisibility(columns) {
             columns.forEach(function (column) {
@@ -92,24 +92,26 @@
 
           // Abstracts the standard template processing we do for every template type.
           var processTemplate = function( templateType, providedType, defaultTemplate, filterType, tooltipType ) {
-            if ( !colDef[templateType] ){
+            if ( !colDef[templateType] ) {
               col[providedType] = defaultTemplate;
             } else {
               col[providedType] = colDef[templateType];
             }
- 
-             templateGetPromises.push(gridUtil.getTemplate(col[providedType])
-                .then(
+
+            var templatePromise = gridUtil.getTemplate(col[providedType])
+              .then(
                 function (template) {
                   if ( angular.isFunction(template) ) { template = template(); }
-                  var tooltipCall = ( tooltipType === 'cellTooltip' ) ? 'col.cellTooltip(row,col)' : 'col.headerTooltip(col)';
-                  if ( tooltipType && col[tooltipType] === false ){
+                  var tooltipCall = ( tooltipType === 'cellTooltip' )
+                      ? 'col.cellTooltip(row,col)'
+                      : 'col.headerTooltip(col)';
+                  if ( tooltipType && col[tooltipType] === false ) {
                     template = template.replace(uiGridConstants.TOOLTIP, '');
-                  } else if ( tooltipType && col[tooltipType] ){
+                  } else if ( tooltipType && col[tooltipType] ) {
                     template = template.replace(uiGridConstants.TOOLTIP, 'title="{{' + tooltipCall + ' CUSTOM_FILTERS }}"');
                   }
 
-                  if ( filterType ){
+                  if ( filterType ) {
                     col[templateType] = template.replace(uiGridConstants.CUSTOM_FILTERS, function() {
                       return col[filterType] ? "|" + col[filterType] : "";
                     });
@@ -117,11 +119,13 @@
                     col[templateType] = template;
                   }
                 },
-                function (res) {
+                function () {
                   throw new Error("Couldn't fetch/use colDef." + templateType + " '" + colDef[templateType] + "'");
-                })
-            );
+                }).catch(angular.noop);
 
+            templateGetPromises.push(templatePromise);
+
+            return templatePromise;
           };
 
 
@@ -134,8 +138,7 @@
            * must contain a div that can receive focus.
            *
            */
-          processTemplate( 'cellTemplate', 'providedCellTemplate', 'ui-grid/uiGridCell', 'cellFilter', 'cellTooltip' );
-          col.cellTemplatePromise = templateGetPromises[0];
+          col.cellTemplatePromise = processTemplate( 'cellTemplate', 'providedCellTemplate', 'ui-grid/uiGridCell', 'cellFilter', 'cellTooltip' );
 
           /**
            * @ngdoc property
@@ -145,7 +148,7 @@
            * is ui-grid/uiGridHeaderCell
            *
            */
-          processTemplate( 'headerCellTemplate', 'providedHeaderCellTemplate', 'ui-grid/uiGridHeaderCell', 'headerCellFilter', 'headerTooltip' );
+          col.headerCellTemplatePromise = processTemplate( 'headerCellTemplate', 'providedHeaderCellTemplate', 'ui-grid/uiGridHeaderCell', 'headerCellFilter', 'headerTooltip' );
 
           /**
            * @ngdoc property
@@ -155,7 +158,7 @@
            * is ui-grid/uiGridFooterCell
            *
            */
-          processTemplate( 'footerCellTemplate', 'providedFooterCellTemplate', 'ui-grid/uiGridFooterCell', 'footerCellFilter' );
+          col.footerCellTemplatePromise = processTemplate( 'footerCellTemplate', 'providedFooterCellTemplate', 'ui-grid/uiGridFooterCell', 'footerCellFilter' );
 
           /**
            * @ngdoc property
@@ -164,14 +167,13 @@
            * @description a custom template for the filter input.  The default is ui-grid/ui-grid-filter
            *
            */
-          processTemplate( 'filterHeaderTemplate', 'providedFilterHeaderTemplate', 'ui-grid/ui-grid-filter' );
+          col.filterHeaderTemplatePromise = processTemplate( 'filterHeaderTemplate', 'providedFilterHeaderTemplate', 'ui-grid/ui-grid-filter' );
 
           // Create a promise for the compiled element function
           col.compiledElementFnDefer = $q.defer();
 
           return $q.all(templateGetPromises);
         },
-        
 
         rowTemplateAssigner: function rowTemplateAssigner(row) {
           var grid = this;
@@ -195,11 +197,11 @@
               .then(function (template) {
                 // Compile the template
                 var rowTemplateFn = $compile(template);
-                
+
                 // Resolve the compiled template function promise
                 perRowTemplateFnPromise.resolve(rowTemplateFn);
               },
-              function (res) {
+              function () {
                 // Todo handle response error here?
                 throw new Error("Couldn't fetch/use row template '" + row.rowTemplate + "'");
               });
@@ -209,7 +211,7 @@
         }
       };
 
-      //class definitions (moved to separate factories)
+      // class definitions (moved to separate factories)
 
       return service;
     }]);

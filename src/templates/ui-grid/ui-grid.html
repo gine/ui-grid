@@ -10,7 +10,7 @@
     }
 
     .grid{{ grid.id }} .ui-grid-row:last-child .ui-grid-cell {
-      border-bottom-width: {{ ((grid.getTotalRowHeight() < grid.getViewportHeight()) && '1') || '0' }}px;
+      border-bottom-width: {{ (((grid.getVisibleRowCount() * grid.options.rowHeight) < grid.getViewportHeight()) && '1') || '0' }}px;
     }
 
     {{ grid.verticalScrollbarStyles }}
@@ -25,7 +25,7 @@
     {{ grid.customStyles }}
   </style>
 
-  <div class="ui-grid-contents-wrapper">
+  <div class="ui-grid-contents-wrapper" role="grid">
     <div ui-grid-menu-button ng-if="grid.options.enableGridMenu"></div>
 
     <div ng-if="grid.hasLeftContainer()" style="width: 0" ui-grid-pinned-container="'left'"></div>

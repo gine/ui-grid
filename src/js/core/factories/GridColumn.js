@@ -1,4 +1,4 @@
-(function(){
+(function() {
 
 angular.module('ui.grid')
 .factory('GridColumn', ['gridUtil', 'uiGridConstants', 'i18nService', function(gridUtil, uiGridConstants, i18nService) {
@@ -18,8 +18,11 @@ angular.module('ui.grid')
    * @ngdoc property
    * @name name
    * @propertyOf ui.grid.class:GridColumn
-   * @description (mandatory) each column should have a name, although for backward
-   * compatibility with 2.x name can be omitted if field is present
+   * @description (mandatory) Each column should have a name, although for backward
+   * compatibility with 2.x name can be omitted if field is present.
+   *
+   * Important - This must be unique to each column on a web page since it can
+   * be used as a key for retrieving information such as custom sort algorithms.
    *
    */
 
@@ -27,8 +30,11 @@ angular.module('ui.grid')
    * @ngdoc property
    * @name name
    * @propertyOf ui.grid.class:GridOptions.columnDef
-   * @description (mandatory) each column should have a name, although for backward
-   * compatibility with 2.x name can be omitted if field is present
+   * @description (mandatory) Each column should have a name, although for backward
+   * compatibility with 2.x name can be omitted if field is present.
+   *
+   * Important - This must be unique to each column on a web page since it can
+   * be used as a key for retrieving information such as custom sort algorithms.
    *
    */
 
@@ -36,7 +42,7 @@ angular.module('ui.grid')
    * @ngdoc property
    * @name displayName
    * @propertyOf ui.grid.class:GridColumn
-   * @description Column name that will be shown in the header.  If displayName is not
+   * @description Column name that will be shown in the header. If displayName is not
    * provided then one is generated using the name.
    *
    */
@@ -45,7 +51,7 @@ angular.module('ui.grid')
    * @ngdoc property
    * @name displayName
    * @propertyOf ui.grid.class:GridOptions.columnDef
-   * @description Column name that will be shown in the header.  If displayName is not
+   * @description Column name that will be shown in the header. If displayName is not
    * provided then one is generated using the name.
    *
    */
@@ -81,17 +87,17 @@ angular.module('ui.grid')
    * <pre>{ term: 'text', condition: uiGridConstants.filter.STARTS_WITH, placeholder: 'type to filter...', ariaLabel: 'Filter for text', flags: { caseSensitive: false }, type: uiGridConstants.filter.SELECT, [ { value: 1, label: 'male' }, { value: 2, label: 'female' } ] }</pre>
    *
    */
-   
-  /** 
+
+  /**
    * @ngdoc property
    * @name extraStyle
    * @propertyOf ui.grid.class:GridColumn
-   * @description additional on this column.  
+   * @description additional on this column.
    * @example
-   * <pre>{extraStyle: {display:'table-cell'}}</pre>
+   * <pre>{extraStyle: {display: 'table-cell'}}</pre>
    *
-   */   
-    
+   */
+
   /**
    * @ngdoc object
    * @name ui.grid.class:GridColumn
@@ -139,7 +145,7 @@ angular.module('ui.grid')
       var result = 0;
       var visibleRows = self.grid.getVisibleRows();
 
-      var cellValues = function(){
+      var cellValues = function() {
         var values = [];
         visibleRows.forEach(function (row) {
           var cellValue = self.grid.getCellValue(row, self);
@@ -208,7 +214,7 @@ angular.module('ui.grid')
   GridColumn.prototype.hideColumn = function() {
     this.colDef.visible = false;
   };
-  
+
 
   /**
    * @ngdoc method
@@ -216,7 +222,7 @@ angular.module('ui.grid')
    * @name setPropertyOrDefault
    * @description Sets a property on the column using the passed in columnDef, and
    * setting the defaultValue if the value cannot be found on the colDef
-   * @param {ColumnDef} colDef the column def to look in for the property value
+   * @param {GridColumn} colDef the column def to look in for the property value
    * @param {string} propName the property name we'd like to set
    * @param {object} defaultValue the value to use if the colDef doesn't provide the setting
    */
@@ -256,7 +262,8 @@ angular.module('ui.grid')
    * @ngdoc property
    * @name minWidth
    * @propertyOf ui.grid.class:GridOptions.columnDef
-   * @description sets the minimum column width.  Should be a number.
+   * @description Sets the minimum column width.  Should be a number.
+   * Defaults to gridOptions.minimumColumnSize if minWidth is not provided.
    * @example
    * <pre>  $scope.gridOptions.columnDefs = [ { field: 'field1', minWidth: 100}]; </pre>
    *
@@ -295,7 +302,7 @@ angular.module('ui.grid')
   * - direction: values are {@link ui.grid.service:uiGridConstants#properties_ASC uiGridConstants.ASC}
   *  or {@link ui.grid.service:uiGridConstants#properties_DESC uiGridConstants.DESC}
   * - ignoreSort: if set to true this sort is ignored (used by tree to manipulate the sort functionality)
-  * - priority: says what order to sort the columns in (lower priority gets sorted first).
+  * - priority: says what order to sort the columns in (lower priority gets sorted first). Starts from 0.
   * @example
   * <pre>
   *   $scope.gridOptions.columnDefs = [{
@@ -319,6 +326,31 @@ angular.module('ui.grid')
    * that are the row objects and the current direction of the sort respectively.
    *
    */
+
+   /**
+    * @ngdoc property
+    * @name defaultSort
+    * @propertyOf ui.grid.class:GridOptions.columnDef
+    * @description An object of sort information, provides a hidden default ordering of the data
+    * when no user sorts are applied, or when a user-provided sort deems two rows to be equal.
+    *
+    * May be combined with a regular {@link ui.grid.class:GridOptions.columnDef#properties_sort columnDef.sort}
+    * to explicitly sort by that column by default.
+    *
+    * Shares the same object format as {@link ui.grid.class:GridOptions.columnDef#properties_sort columnDef.sort}.
+    *
+    * Note that a defaultSort can never take priority over an explicit sort.
+    * @example
+    * <pre>
+    *   $scope.gridOptions.columnDefs = [{
+    *     field: 'field1',
+    *     defaultSort: {
+    *       direction: uiGridConstants.ASC,
+    *       priority: 0
+    *      }
+    *   }];
+    * </pre>
+    */
 
   /**
    * @ngdoc array
@@ -412,13 +444,20 @@ angular.module('ui.grid')
    *
    */
 
+  // Use colDef.displayName as long as it's not undefined, otherwise default to the field name
+  function getDisplayName(colDef) {
+    return (colDef.displayName === undefined)
+      ? gridUtil.readableColumnName(colDef.name)
+      : colDef.displayName;
+  }
+
   /**
    * @ngdoc method
    * @methodOf ui.grid.class:GridColumn
    * @name updateColumnDef
    * @description Moves settings from the columnDef down onto the column,
    * and sets properties as appropriate
-   * @param {ColumnDef} colDef the column def to look in for the property value
+   * @param {GridColumn} colDef the column def to look in for the property value
    * @param {boolean} isNew whether the column is being newly created, if not
    * we're updating an existing column, and some items such as the sort shouldn't
    * be copied down
@@ -432,7 +471,7 @@ angular.module('ui.grid')
       throw new Error('colDef.name is required for column at index ' + self.grid.options.columnDefs.indexOf(colDef));
     }
 
-    self.displayName = (colDef.displayName === undefined) ? gridUtil.readableColumnName(colDef.name) : colDef.displayName;
+    self.displayName = getDisplayName(colDef);
 
     if (!angular.isNumber(self.width) || !self.hasCustomWidth || colDef.allowCustomWidthOverride) {
       var colDefWidth = colDef.width;
@@ -471,12 +510,21 @@ angular.module('ui.grid')
       }
     }
 
+    function isValidWidthValue(value) {
+      return angular.isString(value) || angular.isNumber(value);
+    }
+
     ['minWidth', 'maxWidth'].forEach(function (name) {
       var minOrMaxWidth = colDef[name];
       var parseErrorMsg = "Cannot parse column " + name + " '" + minOrMaxWidth + "' for column named '" + colDef.name + "'";
 
-      if (!angular.isString(minOrMaxWidth) && !angular.isNumber(minOrMaxWidth)) {
-        //Sets default minWidth and maxWidth values
+      // default minWidth to the minimumColumnSize
+      if (name === 'minWidth' && !isValidWidthValue(minOrMaxWidth) && angular.isDefined(self.grid.options.minimumColumnSize)) {
+        minOrMaxWidth = self.grid.options.minimumColumnSize;
+      }
+
+      if (!isValidWidthValue(minOrMaxWidth)) {
+        // Sets default minWidth and maxWidth values
         self[name] = ((name === 'minWidth') ? 30 : 9000);
       } else if (angular.isString(minOrMaxWidth)) {
         if (minOrMaxWidth.match(/^(\d+)$/)) {
@@ -489,19 +537,17 @@ angular.module('ui.grid')
       }
     });
 
-    //use field if it is defined; name if it is not
+    // use field if it is defined; name if it is not
     self.field = (colDef.field === undefined) ? colDef.name : colDef.field;
 
-    if ( typeof( self.field ) !== 'string' ){
+    if ( typeof( self.field ) !== 'string' ) {
       gridUtil.logError( 'Field is not a string, this is likely to break the code, Field is: ' + self.field );
     }
 
     self.name = colDef.name;
+    self.displayName = getDisplayName(colDef);
 
-    // Use colDef.displayName as long as it's not undefined, otherwise default to the field name
-    self.displayName = (colDef.displayName === undefined) ? gridUtil.readableColumnName(colDef.name) : colDef.displayName;
-
-    //self.originalIndex = index;
+    // self.originalIndex = index;
 
     self.aggregationType = angular.isDefined(colDef.aggregationType) ? colDef.aggregationType : null;
     self.footerCellTemplate = angular.isDefined(colDef.footerCellTemplate) ? colDef.footerCellTemplate : null;
@@ -521,14 +567,14 @@ angular.module('ui.grid')
      */
     if ( typeof(colDef.cellTooltip) === 'undefined' || colDef.cellTooltip === false ) {
       self.cellTooltip = false;
-    } else if ( colDef.cellTooltip === true ){
+    } else if ( colDef.cellTooltip === true ) {
       self.cellTooltip = function(row, col) {
         return self.grid.getCellValue( row, col );
       };
-    } else if (typeof(colDef.cellTooltip) === 'function' ){
+    } else if (typeof(colDef.cellTooltip) === 'function' ) {
       self.cellTooltip = colDef.cellTooltip;
     } else {
-      self.cellTooltip = function ( row, col ){
+      self.cellTooltip = function ( row, col ) {
         return col.colDef.cellTooltip;
       };
     }
@@ -548,13 +594,16 @@ angular.module('ui.grid')
      */
     if ( typeof(colDef.headerTooltip) === 'undefined' || colDef.headerTooltip === false ) {
       self.headerTooltip = false;
-    } else if ( colDef.headerTooltip === true ){
+    }
+    else if ( colDef.headerTooltip === true ) {
       self.headerTooltip = function(col) {
         return col.displayName;
       };
-    } else if (typeof(colDef.headerTooltip) === 'function' ){
+    }
+    else if (typeof(colDef.headerTooltip) === 'function' ) {
       self.headerTooltip = colDef.headerTooltip;
-    } else {
+    }
+    else {
       self.headerTooltip = function ( col ) {
         return col.colDef.headerTooltip;
       };
@@ -652,7 +701,7 @@ angular.module('ui.grid')
     self.visible = gridUtil.isNullOrUndefined(colDef.visible) || colDef.visible;
 
     self.headerClass = colDef.headerClass;
-    //self.cursor = self.sortable ? 'pointer' : 'default';
+    // self.cursor = self.sortable ? 'pointer' : 'default';
 
     // Turn on sorting by default
     self.enableSorting = typeof(colDef.enableSorting) !== 'undefined' ? colDef.enableSorting : self.grid.options.enableSorting;
@@ -684,7 +733,7 @@ angular.module('ui.grid')
      * @description (optional) False by default. When enabled, this setting hides the removeSort option
      * in the menu, and prevents users from manually removing the sort
      */
-    if ( typeof(self.suppressRemoveSort) === 'undefined'){
+    if ( typeof(self.suppressRemoveSort) === 'undefined') {
       self.suppressRemoveSort = typeof(colDef.suppressRemoveSort) !== 'undefined' ? colDef.suppressRemoveSort : false;
     }
 
@@ -706,9 +755,12 @@ angular.module('ui.grid')
     self.setPropertyOrDefault(colDef, 'menuItems', []);
 
     // Use the column definition sort if we were passed it, but only if this is a newly added column
-    if ( isNew ){
+    if ( isNew ) {
       self.setPropertyOrDefault(colDef, 'sort');
     }
+
+    // Use the column definition defaultSort always, unlike normal sort
+    self.setPropertyOrDefault(colDef, 'defaultSort');
 
     // Set up default filters array for when one is not provided.
     //   In other words, this (in column def):
@@ -723,9 +775,10 @@ angular.module('ui.grid')
     if (colDef.filter) {
       defaultFilters.push(colDef.filter);
     }
-    else if ( colDef.filters ){
+    else if ( colDef.filters ) {
       defaultFilters = colDef.filters;
-    } else {
+    }
+    else {
       // Add an empty filter definition object, which will
       // translate to a guessed condition and no pre-populated
       // value for the filter <input>.
@@ -780,25 +833,6 @@ angular.module('ui.grid')
      *
      */
 
-    /*
-
-
-    /*
-
-      self.filters = [
-        {
-          term: 'search term'
-          condition: uiGridConstants.filter.CONTAINS,
-          placeholder: 'my placeholder',
-          ariaLabel: 'Starts with filter for field1',
-          flags: {
-            caseSensitive: true
-          }
-        }
-      ]
-
-    */
-
     // Only set filter if this is a newly added column, if we're updating an existing
     // column then we don't want to put the default filter back if the user may have already
     // removed it.
@@ -808,7 +842,7 @@ angular.module('ui.grid')
       self.setPropertyOrDefault(colDef, 'extraStyle');
       self.setPropertyOrDefault(colDef, 'filters', defaultFilters);
     } else if ( self.filters.length === defaultFilters.length ) {
-      self.filters.forEach( function( filter, index ){
+      self.filters.forEach( function( filter, index ) {
         if (typeof(defaultFilters[index].placeholder) !== 'undefined') {
           filter.placeholder = defaultFilters[index].placeholder;
         }
@@ -835,6 +869,15 @@ angular.module('ui.grid')
    * @description Removes column from the grid sorting
    */
   GridColumn.prototype.unsort = function () {
+    // Decrease priority for every col where priority is higher than the removed sort's priority.
+    var thisPriority = this.sort.priority;
+
+    this.grid.columns.forEach(function (col) {
+      if (col.sort && col.sort.priority !== undefined && col.sort.priority > thisPriority) {
+        col.sort.priority -= 1;
+      }
+    });
+
     this.sort = {};
     this.grid.api.core.raise.sortChanged( this.grid, this.grid.getColumnSorting() );
   };
@@ -936,14 +979,14 @@ angular.module('ui.grid')
    */
   GridColumn.prototype.getAggregationText = function () {
     var self = this;
-    if ( self.colDef.aggregationHideLabel ){
+    if ( self.colDef.aggregationHideLabel ) {
       return '';
     }
     else if ( self.colDef.aggregationLabel ) {
       return self.colDef.aggregationLabel;
     }
     else {
-      switch ( self.colDef.aggregationType ){
+      switch ( self.colDef.aggregationType ) {
         case uiGridConstants.aggregationTypes.count:
           return i18nService.getSafeText('aggregation.count');
         case uiGridConstants.aggregationTypes.sum:

@@ -163,7 +163,7 @@ describe('rowSorter', function() {
     });
   });
 
-  describe('sort by date column', function(){
+  describe('sort by date column', function() {
     var grid, rows, cols;
 
     beforeEach(function() {
@@ -196,17 +196,64 @@ describe('rowSorter', function() {
       ];
     });
 
-    it('should sort by the actual date', function(){
+    it('should sort by the actual date', function() {
       var ret = rowSorter.sort(grid, rows, cols);
 
       expect(ret[0].entity.name).toEqual('Jim');
     });
 
-    it('should sort by the day of week string', function(){
+    it('should sort by the day of week string', function() {
       cols[1].sortCellFiltered = true;
 
       var ret = rowSorter.sort(grid, rows, cols);
 
+      expect(ret[0].entity.name).toEqual('Bill');
+    });
+
+  });
+
+  describe('default sort', function() {
+    var grid, rows, cols;
+
+    beforeEach(function() {
+      grid = new Grid({ id: 123 });
+
+      var e1 = { name: 'Bob', employeeId: 4 };
+      var e2 = { name: 'Jim', employeeId: 2  };
+      var e3 = { name: 'Bill', employeeId: 5  };
+
+      rows = [
+        new GridRow(e1, 0, grid),
+        new GridRow(e2, 1, grid),
+        new GridRow(e3, 1, grid)
+      ];
+
+      cols = [
+        new GridColumn({
+          name: 'name',
+          type: 'string'
+        }, 0, grid),
+        new GridColumn({
+          name: 'employeeId',
+          type: 'string',
+          defaultSort: {
+            direction: uiGridConstants.ASC,
+            priority: 0
+          }
+        }, 1, grid)
+      ];
+    });
+
+    it('should sort by the default sort column by default', function() {
+      var ret = rowSorter.sort(grid, rows, cols);
+
+      expect(ret[0].entity.name).toEqual('Jim');
+    });
+
+    it('should sort by the name when a sort is applied', function() {
+      cols[0].sort.direction = uiGridConstants.ASC;
+
+      var ret = rowSorter.sort(grid, rows, cols);
       expect(ret[0].entity.name).toEqual('Bill');
     });
 
@@ -307,7 +354,7 @@ describe('rowSorter', function() {
         $scope.$digest();
       });
 
-      it('should call external sort',function (){
+      it('should call external sort',function () {
         expect(grid.options.externalSort).toHaveBeenCalled();
 
         expect(returnedRows).toEqual(timeoutRows);

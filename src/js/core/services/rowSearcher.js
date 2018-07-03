@@ -29,7 +29,7 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
    */
   rowSearcher.getTerm = function getTerm(filter) {
     if (typeof(filter.term) === 'undefined') { return filter.term; }
-    
+
     var term = filter.term;
 
     // Strip leading and trailing whitespace if the term is a string
@@ -58,7 +58,7 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
       return term;
     }
   };
-  
+
 
   /**
    * @ngdoc function
@@ -77,7 +77,7 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
     }
 
     var term = rowSearcher.getTerm(filter);
-    
+
     if (/\*/.test(term)) {
       var regexpFlags = '';
       if (!filter.flags || !filter.flags.caseSensitive) {
@@ -92,8 +92,8 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
       return defaultCondition;
     }
   };
-  
-  
+
+
   /**
    * @ngdoc function
    * @name setupFilters
@@ -101,39 +101,39 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
    * @description For a given columns filters (either col.filters, or [col.filter] can be passed in),
    * do all the parsing and pre-processing and store that data into a new filters object.  The object
    * has the condition, the flags, the stripped term, and a parsed reg exp if there was one.
-   * 
-   * We could use a forEach in here, since it's much less performance sensitive, but since we're using 
+   *
+   * We could use a forEach in here, since it's much less performance sensitive, but since we're using
    * for loops everywhere else in this module...
-   * 
+   *
    * @param {array} filters the filters from the column (col.filters or [col.filter])
    * @returns {array} An array of parsed/preprocessed filters
    */
-  rowSearcher.setupFilters = function setupFilters( filters ){
+  rowSearcher.setupFilters = function setupFilters( filters ) {
     var newFilters = [];
-    
+
     var filtersLength = filters.length;
-    for ( var i = 0; i < filtersLength; i++ ){
+    for ( var i = 0; i < filtersLength; i++ ) {
       var filter = filters[i];
-      
-      if ( filter.noTerm || !gridUtil.isNullOrUndefined(filter.term) ){
+
+      if ( filter.noTerm || !gridUtil.isNullOrUndefined(filter.term) ) {
         var newFilter = {};
-        
+
         var regexpFlags = '';
         if (!filter.flags || !filter.flags.caseSensitive) {
           regexpFlags += 'i';
         }
-    
-        if ( !gridUtil.isNullOrUndefined(filter.term) ){
+
+        if ( !gridUtil.isNullOrUndefined(filter.term) ) {
           // it is possible to have noTerm.
-          if ( filter.rawTerm ){
+          if ( filter.rawTerm ) {
             newFilter.term = filter.term;
           } else {
             newFilter.term = rowSearcher.stripTerm(filter);
           }
         }
         newFilter.noTerm = filter.noTerm;
-        
-        if ( filter.condition ){
+
+        if ( filter.condition ) {
           newFilter.condition = filter.condition;
         } else {
           newFilter.condition = rowSearcher.guessCondition(filter);
@@ -144,7 +144,7 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
         if (newFilter.condition === uiGridConstants.filter.STARTS_WITH) {
           newFilter.startswithRE = new RegExp('^' + newFilter.term, regexpFlags);
         }
-        
+
          if (newFilter.condition === uiGridConstants.filter.ENDS_WITH) {
           newFilter.endswithRE = new RegExp(newFilter.term + '$', regexpFlags);
         }
@@ -156,13 +156,13 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
         if (newFilter.condition === uiGridConstants.filter.EXACT) {
           newFilter.exactRE = new RegExp('^' + newFilter.term + '$', regexpFlags);
         }
-        
+
         newFilters.push(newFilter);
       }
     }
     return newFilters;
   };
-  
+
 
   /**
    * @ngdoc function
@@ -170,10 +170,10 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
    * @methodOf ui.grid.service:rowSearcher
    * @description Runs a single pre-parsed filter against a cell, returning true
    * if the cell matches that one filter.
-   * 
+   *
    * @param {Grid} grid the grid we're working against
    * @param {GridRow} row the row we're matching against
-   * @param {GridCol} column the column that we're working against
+   * @param {GridColumn} column the column that we're working against
    * @param {object} filter the specific, preparsed, filter that we want to test
    * @returns {boolean} true if we match (row stays visible)
    */
@@ -186,7 +186,7 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
 
     // Get the column value for this row
     var value;
-    if ( column.filterCellFiltered ){
+    if ( column.filterCellFiltered ) {
       value = grid.getCellDisplayValue(row, column);
     } else {
       value = grid.getCellValue(row, column);
@@ -224,7 +224,7 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
       return !regex.exec(value);
     }
 
-    if (typeof(value) === 'number' && typeof(term) === 'string' ){
+    if (typeof(value) === 'number' && typeof(term) === 'string' ) {
       // if the term has a decimal in it, it comes through as '9\.4', we need to take out the \
       // the same for negative numbers
       // TODO: I suspect the right answer is to look at escapeRegExp at the top of this code file, maybe it's not needed?
@@ -266,7 +266,7 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
    * @propertyOf ui.grid.class:GridOptions
    * @description False by default. When enabled, this setting suppresses the internal filtering.
    * All UI logic will still operate, allowing filter conditions to be set and modified.
-   * 
+   *
    * The external filter logic can listen for the `filterChange` event, which fires whenever
    * a filter has been adjusted.
    */
@@ -274,11 +274,11 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
    * @ngdoc function
    * @name searchColumn
    * @methodOf ui.grid.service:rowSearcher
-   * @description Process provided filters on provided column against a given row. If the row meets 
+   * @description Process provided filters on provided column against a given row. If the row meets
    * the conditions on all the filters, return true.
    * @param {Grid} grid Grid to search in
    * @param {GridRow} row Row to search on
-   * @param {GridCol} column Column with the filters to use
+   * @param {GridColumn} column Column with the filters to use
    * @param {array} filters array of pre-parsed/preprocessed filters to apply
    * @returns {boolean} Whether the column matches or not.
    */
@@ -291,7 +291,7 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
     for (var i = 0; i < filtersLength; i++) {
       var filter = filters[i];
 
-      if ( !gridUtil.isNullOrUndefined(filter.term) && filter.term !== '' || filter.noTerm ){ 
+      if ( !gridUtil.isNullOrUndefined(filter.term) && filter.term !== '' || filter.noTerm ) {
         var ret = rowSearcher.runColumnFilter(grid, row, column, filter);
         if (!ret) {
           return false;
@@ -307,7 +307,7 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
    * @ngdoc function
    * @name search
    * @methodOf ui.grid.service:rowSearcher
-   * @description Run a search across the given rows and columns, marking any rows that don't 
+   * @description Run a search across the given rows and columns, marking any rows that don't
    * match the stored col.filters or col.filter as invisible.
    * @param {Grid} grid Grid instance to search inside
    * @param {Array[GridRow]} rows GridRows to filter
@@ -326,7 +326,7 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
     }
 
     // don't filter if filtering currently disabled
-    if (!grid.options.enableFiltering){
+    if (!grid.options.enableFiltering) {
       return rows;
     }
 
@@ -339,7 +339,7 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
       var hasTerm = false;
 
       filters.forEach( function (filter) {
-        if ( !gridUtil.isNullOrUndefined(filter.term) && filter.term !== '' || filter.noTerm ){
+        if ( !gridUtil.isNullOrUndefined(filter.term) && filter.term !== '' || filter.noTerm ) {
           hasTerm = true;
         }
       });
@@ -357,23 +357,23 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
 
     if (filterData.length > 0) {
       // define functions outside the loop, performance optimisation
-      var foreachRow = function(grid, row, col, filters){
+      var foreachRow = function(grid, row, col, filters) {
         if ( row.visible && !rowSearcher.searchColumn(grid, row, col, filters) ) {
           row.visible = false;
         }
       };
 
-      var foreachFilterCol = function(grid, filterData){
+      var foreachFilterCol = function(grid, filterData) {
         var rowsLength = rows.length;
-        for ( var i = 0; i < rowsLength; i++){
-          foreachRow(grid, rows[i], filterData.col, filterData.filters);  
+        for ( var i = 0; i < rowsLength; i++) {
+          foreachRow(grid, rows[i], filterData.col, filterData.filters);
         }
       };
 
       // nested loop itself - foreachFilterCol, which in turn calls foreachRow
       var filterDataLength = filterData.length;
-      for ( var j = 0; j < filterDataLength; j++){
-        foreachFilterCol( grid, filterData[j] );  
+      for ( var j = 0; j < filterDataLength; j++) {
+        foreachFilterCol( grid, filterData[j] );
       }
 
       if (grid.api.core.raise.rowsVisibleChanged) {
@@ -382,7 +382,7 @@ module.service('rowSearcher', ['gridUtil', 'uiGridConstants', function (gridUtil
 
       // drop any invisible rows
       // keeping these, as needed with filtering for trees - we have to come back and make parent nodes visible if child nodes are selected in the filter
-      // rows = rows.filter(function(row){ return row.visible; });
+      // rows = rows.filter(function(row) { return row.visible; });
 
     }
 

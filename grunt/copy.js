@@ -24,25 +24,45 @@ module.exports = function ( grunt ) {
           expand: true,
           cwd: 'src/font',
           src: '**/*.eot',
-          dest: '<%= dist %>/release/'
+          dest: '<%= dist %>/release/fonts'
         },
         {
           expand: true,
           cwd: 'src/font',
           src: '**/*.svg',
-          dest: '<%= dist %>/release/'
+          dest: '<%= dist %>/release/fonts'
         },
         {
           expand: true,
           cwd: 'src/font',
           src: '**/*.ttf',
-          dest: '<%= dist %>/release/'
+          dest: '<%= dist %>/release/fonts'
         },
         {
           expand: true,
           cwd: 'src/font',
           src: '**/*.woff',
-          dest: '<%= dist %>/release/'
+          dest: '<%= dist %>/release/fonts'
+        }
+      ]
+    },
+    fonts_cut_release: {
+      files: [
+        {
+          expand: true,
+          cwd: '<%= dist %>/release/fonts',
+          src: '**/*',
+          dest: '<%= dist %>/release/' + currentTag + '/fonts'
+        }
+      ]
+    },
+    i18n_cut_release: {
+      files: [
+        {
+          expand: true,
+          cwd: '<%= dist %>/release/i18n',
+          src: '**/*.js',
+          dest: '<%= dist %>/release/' + currentTag + '/i18n'
         }
       ]
     },

@@ -2,7 +2,7 @@ language: node_js
 sudo: false # defaults to sending build to container-based infrastructure on Travis
 
 node_js:
-  - 4
+  - 8
 
 notifications:
   webhooks:
@@ -30,8 +30,8 @@ env:
 branches:
   only:
     - master
-    - /^3\.0$/
-    - /^3\.x$/
+    - /^4\.0$/
+    - /^4\.x$/
     - /^release-.*$/
 
 before_install:
@@ -43,7 +43,7 @@ install:
 
 before_script:
   - git fetch --tags
-  - chmod +x ./lib/sauce/sauce_connect_setup.sh ./lib/sauce/sauce_connect_block.sh ./travis_build.sh ./travis_print_logs.sh
+  - chmod +x ./lib/sauce/sauce_connect_setup.sh ./lib/sauce/sauce_connect_block.sh ./lib/build/travis_build.sh ./lib/build/travis_print_logs.sh
   - mkdir -p $LOGS_DIR
   - ./lib/sauce/sauce_connect_setup.sh
   - npm install --quiet -g grunt-cli karma-cli
@@ -53,13 +53,14 @@ before_script:
   - ./lib/sauce/sauce_connect_block.sh
 
 script:
-  - ./travis_build.sh
+  - ./lib/build/travis_build.sh
 
 after_success:
   - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && grunt release
 
 after_failure:
-  - ./travis_print_logs.sh
+  - ./lib/build/travis_print_logs.sh
 
 after_script:
-  - ./travis_print_logs.sh
+  - killall -9 sc
+  - ./lib/build/travis_print_logs.sh

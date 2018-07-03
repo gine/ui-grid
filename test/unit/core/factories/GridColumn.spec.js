@@ -1,5 +1,5 @@
 describe('GridColumn factory', function () {
-  var $q, $scope, cols, grid, gridCol, Grid, GridColumn, gridClassFactory, GridRenderContainer, uiGridConstants, $httpBackend;
+  var $q, $scope, cols, grid, Grid, GridColumn, gridClassFactory, GridRenderContainer, uiGridConstants, $httpBackend;
 
   beforeEach(module('ui.grid'));
 
@@ -64,9 +64,8 @@ describe('GridColumn factory', function () {
     });
 
     describe('should not update sort when updating a column, but visible flag does update', function () {
-      beforeEach(function(complete){
-        var sort = { priority: 0, direction: 'asc' };
-        grid.options.columnDefs[0].sort = sort;
+      beforeEach(function(complete) {
+        grid.options.columnDefs[0].sort = { priority: 0, direction: 'asc' };
         grid.options.columnDefs[0].visible = false;
         buildCols(complete);
       });
@@ -79,8 +78,7 @@ describe('GridColumn factory', function () {
 
     describe('should update everything but term when updating filters', function () {
       beforeEach(function(complete) {
-        var filter = { term: 'x', placeholder: 'placeholder', type: uiGridConstants.filter.SELECT, selectOptions: [ { value: 1, label: "male" } ] };
-        grid.options.columnDefs[0].filter = filter;
+        grid.options.columnDefs[0].filter = { term: 'x', placeholder: 'placeholder', type: uiGridConstants.filter.SELECT, selectOptions: [ { value: 1, label: "male" } ] };
         buildCols(complete);
       });
 
@@ -92,8 +90,7 @@ describe('GridColumn factory', function () {
 
     describe('should update everything but term when updating filters', function () {
       beforeEach(function(complete) {
-        var filters = [{ term: 'x', placeholder: 'placeholder', type: uiGridConstants.filter.SELECT, selectOptions: [ { value: 1, label: "male" } ] }];
-        grid.options.columnDefs[0].filters = filters;
+        grid.options.columnDefs[0].filters = [{ term: 'x', placeholder: 'placeholder', type: uiGridConstants.filter.SELECT, selectOptions: [ { value: 1, label: "male" } ] }];
         buildCols(complete);
       });
 
@@ -101,7 +98,6 @@ describe('GridColumn factory', function () {
         expect(grid.columns[0].filters).toEqual([ { placeholder: 'placeholder', type: uiGridConstants.filter.SELECT, selectOptions: [ { value: 1, label: "male" } ] } ] );
       });
     });
-
 
 
     it('should obey columnDef sort spec', function () {
@@ -115,14 +111,12 @@ describe('GridColumn factory', function () {
       });
 
       it('should add an incrementing number to column names when they have the same field and no name', function () {
-        var cols = [
+        grid.options.columnDefs = [
           { field: 'age' },
           { field: 'name' },
           { field: 'name' },
           { field: 'name' }
         ];
-
-        grid.options.columnDefs = cols;
 
         buildCols();
 
@@ -133,14 +127,12 @@ describe('GridColumn factory', function () {
       });
 
       it('should not change the displayNames if they are provided', function () {
-        var cols = [
+        grid.options.columnDefs = [
           { field: 'age' },
-          { field: 'name', displayName:'First Name' },
-          { field: 'name', displayName:'First Name' },
-          { field: 'name', displayName:'First Name' }
+          { field: 'name', displayName: 'First Name' },
+          { field: 'name', displayName: 'First Name' },
+          { field: 'name', displayName: 'First Name' }
         ];
-
-        grid.options.columnDefs = cols;
 
         buildCols();
 
@@ -148,18 +140,15 @@ describe('GridColumn factory', function () {
         expect(grid.columns[1].displayName).toEqual('First Name');
         expect(grid.columns[2].displayName).toEqual('First Name');
         expect(grid.columns[3].displayName).toEqual('First Name');
-
       });
 
       it('should account for existing incremented names', function () {
-        var cols = [
+        grid.options.columnDefs = [
           { field: 'age' },
           { field: 'name' },
           { field: 'name', name: 'name3' },
           { field: 'name' }
         ];
-
-        grid.options.columnDefs = cols;
 
         buildCols();
 
@@ -236,7 +225,7 @@ describe('GridColumn factory', function () {
       grid.options.columnDefs[0].aggregationType = uiGridConstants.aggregationTypes.count;
       grid.options.columnDefs[0].aggregationHideLabel = true;
 
-      buildCols(function(){});
+      buildCols(function() {});
       grid.modifyRows(grid.options.data);
 
       // this would be called by the footer cell if it were rendered
@@ -425,7 +414,7 @@ describe('GridColumn factory', function () {
 
     it('raise event', function() {
       var sortChanged = false;
-      grid.api.core.on.sortChanged( $scope, function(){ sortChanged = true; });
+      grid.api.core.on.sortChanged( $scope, function() { sortChanged = true; });
 
       grid.columns[0].unsort();
       expect( sortChanged ).toEqual(true);
@@ -562,9 +551,23 @@ describe('GridColumn factory', function () {
       expect(updateCol(colDef.width)).toThrow();
     });
 
-    it ('should set the value of minWidth to 30 when colDef.minWidth is undefined', invalidMinOrMaxWidthDef(undefined, 'minWidth'));
-    it ('should set the value of minWidth to 30 when colDef.minWidth is null', invalidMinOrMaxWidthDef(null, 'minWidth'));
-    it ('should set the value of minWidth to 30 when colDef.minWidth is an object', invalidMinOrMaxWidthDef({}, 'minWidth'));
+    it ('should set the value of minWidth to 30 when colDef.minWidth and options.minimumColumnSize are undefined', invalidMinOrMaxWidthDef(undefined, 'minWidth'));
+    it ('should set the value of minWidth to 30 when colDef.minWidth and options.minimumColumnSize are null', invalidMinOrMaxWidthDef(null, 'minWidth'));
+    it ('should set the value of minWidth to 30 when colDef.minWidth and options.minimumColumnSize are an object', invalidMinOrMaxWidthDef({}, 'minWidth'));
+
+    describe('when options.minimumColumnSize is valid', function() {
+      function validMinimumColumnSize(colSize, colMinWidth) {
+        return function() {
+          col.grid.options.minimumColumnSize = colSize;
+          colDef.minWidth = colMinWidth;
+          col.updateColumnDef(colDef);
+          expect(col.minWidth).toBe(parseInt(grid.options.minimumColumnSize));
+        };
+      }
+      it ('should set the value of minWidth to options.minimumColumnSize when colDef.minWidth is undefined', validMinimumColumnSize(50, undefined));
+      it ('should set the value of minWidth to options.minimumColumnSize when colDef.minWidth is null', validMinimumColumnSize('60', null));
+      it ('should set the value of minWidth to options.minimumColumnSize when colDef.minWidth is an object', validMinimumColumnSize(70, {}));
+    });
 
     it ('should set the value of minWidth to the parsed integer colDef.minWidth when it is a string', function () {
       colDef.minWidth = '90';
@@ -608,6 +611,172 @@ describe('GridColumn factory', function () {
       expect(updateCol(col, colDef)).toThrow();
     });
 
+    describe('displayName', function() {
+      it('should allow the user to set the displayName to an empty string or null value', function() {
+        colDef.displayName = '';
+        col.updateColumnDef(colDef);
+        expect(col.displayName).toEqual('');
+
+        colDef.displayName = null;
+        col.updateColumnDef(colDef);
+        expect(col.displayName).toBeNull();
+      });
+      it('should allow the user to enter whatever displayName they desire', function() {
+        colDef.displayName = 'Test';
+        col.updateColumnDef(colDef);
+        expect(col.displayName).toEqual(colDef.displayName);
+      });
+      it('should generate a displayName based on the name attribute if the user does not define it', function() {
+        colDef.displayName = undefined;
+        colDef.name = 'mockName';
+        col.updateColumnDef(colDef);
+        expect(col.displayName).toEqual('Mock Name');
+      });
+    });
+
+    describe('cellTooltip', function() {
+      it('should be set to false when it is undefined', function() {
+        colDef.cellTooltip = undefined;
+        col.updateColumnDef(colDef);
+        expect(col.cellTooltip).toBe(false);
+      });
+      it('should stay false when the user passed false', function() {
+        colDef.cellTooltip = false;
+        col.updateColumnDef(colDef);
+        expect(col.cellTooltip).toBe(false);
+      });
+      it('should be set to a function that calls grid.getCellValue when it is set to true', function() {
+        colDef.cellTooltip = true;
+        col.updateColumnDef(colDef);
+        expect(angular.isFunction(col.cellTooltip)).toBe(true);
+
+        spyOn(col.grid, 'getCellValue').and.callFake(angular.noop);
+        col.cellTooltip(null, col);
+
+        expect(col.grid.getCellValue).toHaveBeenCalled();
+
+        col.grid.getCellValue.calls.reset();
+      });
+      it('should be assigned to whatever function is passed to it', function() {
+        colDef.cellTooltip = angular.noop;
+        col.updateColumnDef(colDef);
+        expect(angular.isFunction(col.cellTooltip)).toBe(true);
+        expect(col.cellTooltip).toEqual(colDef.cellTooltip);
+      });
+      it('should be set to a function that returns the string passed into it when it is set to a string', function() {
+        colDef.cellTooltip = 'MockHeaderTooltip';
+        col.updateColumnDef(colDef);
+        expect(angular.isFunction(col.cellTooltip)).toBe(true);
+        expect(col.cellTooltip(null, col)).toEqual(colDef.cellTooltip);
+      });
+    });
+
+    describe('headerTooltip', function() {
+      it('should be set to false when it is undefined', function() {
+        colDef.headerTooltip = undefined;
+        col.updateColumnDef(colDef);
+        expect(col.headerTooltip).toBe(false);
+      });
+      it('should stay false when the user passed false', function() {
+        colDef.headerTooltip = false;
+        col.updateColumnDef(colDef);
+        expect(col.headerTooltip).toBe(false);
+      });
+      it('should be set to a function that returns the display name when it is set to true', function() {
+        colDef.headerTooltip = true;
+        col.updateColumnDef(colDef);
+        expect(angular.isFunction(col.headerTooltip)).toBe(true);
+        expect(col.headerTooltip(col)).toEqual(col.displayName);
+      });
+      it('should be assigned to whatever function is passed to it', function() {
+        colDef.headerTooltip = angular.noop;
+        col.updateColumnDef(colDef);
+        expect(angular.isFunction(col.headerTooltip)).toBe(true);
+        expect(col.headerTooltip).toEqual(colDef.headerTooltip);
+      });
+      it('should be set to a function that returns the string passed into it when it is set to a string', function() {
+        colDef.headerTooltip = 'MockHeaderTooltip';
+        col.updateColumnDef(colDef);
+        expect(angular.isFunction(col.headerTooltip)).toBe(true);
+        expect(col.headerTooltip(col)).toEqual(colDef.headerTooltip);
+      });
+    });
+
+    describe('sortCellFiltered', function() {
+      it('should set sortCellFiltered to true when the user passes in a truthy value', function() {
+        colDef.sortCellFiltered = 1;
+        col.updateColumnDef(colDef);
+
+        expect(col.sortCellFiltered).toBe(true);
+      });
+      it('should set sortCellFiltered to false when the user passes in a falsy value', function() {
+        colDef.sortCellFiltered = 0;
+        col.updateColumnDef(colDef);
+
+        expect(col.sortCellFiltered).toBe(false);
+      });
+    });
+
+    describe('filterCellFiltered', function() {
+      it('should set filterCellFiltered to true when the user passes in a truthy value', function() {
+        colDef.filterCellFiltered = 'yes';
+        col.updateColumnDef(colDef);
+
+        expect(col.filterCellFiltered).toBe(true);
+      });
+      it('should set filterCellFiltered to false when the user passes in a falsy value', function() {
+        colDef.filterCellFiltered = null;
+        col.updateColumnDef(colDef);
+
+        expect(col.filterCellFiltered).toBe(false);
+      });
+    });
+
+    describe('footerCellFilter', function() {
+      it('should set footerCellFilter to the value passed in by the user when the user passes in a truthy value', function() {
+        colDef.footerCellFilter = 'date';
+        col.updateColumnDef(colDef);
+
+        expect(col.footerCellFilter).toEqual(colDef.footerCellFilter);
+      });
+      it('should set footerCellFilter an empty string when the user passes in a falsy value', function() {
+        colDef.footerCellFilter = null;
+        col.updateColumnDef(colDef);
+
+        expect(col.footerCellFilter).toEqual('');
+      });
+    });
+
+    describe('sortDirectionCycle', function() {
+      it('should set sortDirectionCycle to the value passed in by the user when the user passes in a truthy value', function() {
+        colDef.sortDirectionCycle = [uiGridConstants.ASC, uiGridConstants.DESC];
+        col.updateColumnDef(colDef);
+
+        expect(col.sortDirectionCycle).toEqual(colDef.sortDirectionCycle);
+      });
+      it('should set sortDirectionCycle the default value when the user passes in undefined', function() {
+        colDef.sortDirectionCycle = undefined;
+        col.updateColumnDef(colDef);
+
+        expect(col.sortDirectionCycle).toEqual([null, uiGridConstants.ASC, uiGridConstants.DESC]);
+      });
+    });
+
+    describe('enableFiltering', function() {
+      it('should set enableFiltering to the value passed by the user when that value is not undefined', function() {
+        colDef.enableFiltering = false;
+        col.updateColumnDef(colDef);
+
+        expect(col.enableFiltering).toEqual(colDef.enableFiltering);
+      });
+      it('should set enableFiltering to true when the user passes in undefined', function() {
+        colDef.enableFiltering = undefined;
+        col.updateColumnDef(colDef);
+
+        expect(col.enableFiltering).toBe(true);
+      });
+    });
+
     function widthEqualsColDefWidth(expected) {
       return function () {
         colDef.width = expected;
@@ -632,10 +801,49 @@ describe('GridColumn factory', function () {
 
     function invalidMinOrMaxWidthDef(width, minOrMax) {
       return function () {
+        col.grid.options.minimumColumnSize = width;
         colDef[minOrMax] = width;
         col.updateColumnDef(colDef);
         expect(col[minOrMax]).toBe(minOrMax === 'minWidth' ? 30 : 9000);
       };
     }
+  });
+
+  describe('isPinnedLeft', function() {
+    var col;
+
+    beforeEach(function () {
+      col = grid.columns[0];
+    });
+
+    it('should return true when the column is on the left render container', function() {
+      col.renderContainer = 'left';
+
+      expect(col.isPinnedLeft()).toBe(true);
+    });
+    it('should return false when the column is not on the left render container', function() {
+      col.renderContainer = 'right';
+
+      expect(col.isPinnedLeft()).toBe(false);
+    });
+  });
+
+  describe('isPinnedRight', function() {
+    var col;
+
+    beforeEach(function () {
+      col = grid.columns[0];
+    });
+
+    it('should return true when the column is on the right render container', function() {
+      col.renderContainer = 'right';
+
+      expect(col.isPinnedRight()).toBe(true);
+    });
+    it('should return false when the column is not on the right render container', function() {
+      col.renderContainer = 'left';
+
+      expect(col.isPinnedRight()).toBe(false);
+    });
   });
 });

@@ -45,7 +45,7 @@
             pinning: {
               /**
                * @ngdoc event
-               * @name columnPin
+               * @name columnPinned
                * @eventOf ui.grid.pinning.api:PublicApi
                * @description raised when column pin state has changed
                * <pre>
@@ -84,7 +84,7 @@
       },
 
       defaultGridOptions: function (gridOptions) {
-        //default option to true unless it was explicitly set to false
+        // default option to true unless it was explicitly set to false
         /**
          *  @ngdoc object
          *  @name ui.grid.pinning.api:GridOptions
@@ -101,11 +101,26 @@
          *  <br/>Defaults to true
          */
         gridOptions.enablePinning = gridOptions.enablePinning !== false;
-
+        /**
+         *  @ngdoc object
+         *  @name hidePinLeft
+         *  @propertyOf  ui.grid.pinning.api:GridOptions
+         *  @description Hide Pin Left for the entire grid.
+         *  <br/>Defaults to false
+         */
+        gridOptions.hidePinLeft = gridOptions.enablePinning && gridOptions.hidePinLeft;
+        /**
+         *  @ngdoc object
+         *  @name hidePinRight
+         *  @propertyOf  ui.grid.pinning.api:GridOptions
+         *  @description Hide Pin Right pinning for the entire grid.
+         *  <br/>Defaults to false
+         */
+        gridOptions.hidePinRight = gridOptions.enablePinning && gridOptions.hidePinRight;
       },
 
       pinningColumnBuilder: function (colDef, col, gridOptions) {
-        //default to true unless gridOptions or colDef is explicitly false
+        // default to true unless gridOptions or colDef is explicitly false
 
         /**
          *  @ngdoc object
@@ -123,7 +138,22 @@
          *  <br/>Defaults to true
          */
         colDef.enablePinning = colDef.enablePinning === undefined ? gridOptions.enablePinning : colDef.enablePinning;
-
+        /**
+         *  @ngdoc object
+         *  @name hidePinLeft
+         *  @propertyOf  ui.grid.pinning.api:ColumnDef
+         *  @description Hide Pin Left for the individual column.
+         *  <br/>Defaults to false
+         */
+        colDef.hidePinLeft = colDef.hidePinLeft === undefined ? gridOptions.hidePinLeft : colDef.hidePinLeft;
+        /**
+         *  @ngdoc object
+         *  @name hidePinRight
+         *  @propertyOf  ui.grid.pinning.api:ColumnDef
+         *  @description Hide Pin Right for the individual column.
+         *  <br/>Defaults to false
+         */
+        colDef.hidePinRight = colDef.hidePinRight === undefined ? gridOptions.hidePinRight : colDef.hidePinRight;
 
         /**
          *  @ngdoc object
@@ -189,10 +219,11 @@
           }
         };
 
-        if (!gridUtil.arrayContainsObjectWithProperty(col.menuItems, 'name', 'ui.grid.pinning.pinLeft')) {
+        // Skip from menu if hidePinLeft or hidePinRight is true
+        if (!colDef.hidePinLeft && !gridUtil.arrayContainsObjectWithProperty(col.menuItems, 'name', 'ui.grid.pinning.pinLeft')) {
           col.menuItems.push(pinColumnLeftAction);
         }
-        if (!gridUtil.arrayContainsObjectWithProperty(col.menuItems, 'name', 'ui.grid.pinning.pinRight')) {
+        if (!colDef.hidePinRight && !gridUtil.arrayContainsObjectWithProperty(col.menuItems, 'name', 'ui.grid.pinning.pinRight')) {
           col.menuItems.push(pinColumnRightAction);
         }
         if (!gridUtil.arrayContainsObjectWithProperty(col.menuItems, 'name', 'ui.grid.pinning.unpin')) {
@@ -241,6 +272,4 @@
         }
       };
     }]);
-
-
 })();

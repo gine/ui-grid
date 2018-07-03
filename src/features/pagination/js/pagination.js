@@ -87,9 +87,9 @@
                  */
                 getLastRowIndex: function () {
                   if (grid.options.useCustomPagination) {
-                    return publicApi.methods.pagination.getFirstRowIndex() + grid.options.paginationPageSizes[grid.options.paginationCurrentPage - 1];
+                    return publicApi.methods.pagination.getFirstRowIndex() + grid.options.paginationPageSizes[grid.options.paginationCurrentPage - 1] - 1;
                   }
-                  return Math.min(grid.options.paginationCurrentPage * grid.options.paginationPageSize, grid.options.totalItems);
+                  return Math.min(grid.options.paginationCurrentPage * grid.options.paginationPageSize, grid.options.totalItems) - 1;
                 },
                 /**
                  * @ngdoc method
@@ -124,7 +124,8 @@
                       grid.options.paginationCurrentPage + 1,
                       publicApi.methods.pagination.getTotalPages()
                     );
-                  } else {
+                  }
+                  else {
                     grid.options.paginationCurrentPage++;
                   }
                 },
@@ -165,11 +166,11 @@
           grid.api.registerEventsFromObject(publicApi.events);
           grid.api.registerMethodsFromObject(publicApi.methods);
 
-          var processPagination = function( renderableRows ){
+          var processPagination = function( renderableRows ) {
             if (grid.options.useExternalPagination || !grid.options.enablePagination) {
               return renderableRows;
             }
-            //client side pagination
+            // client side pagination
             var pageSize = parseInt(grid.options.paginationPageSize, 10);
             var currentPage = parseInt(grid.options.paginationCurrentPage, 10);
 
@@ -183,7 +184,7 @@
               currentPage = grid.options.paginationCurrentPage = 1;
               firstRow = (currentPage - 1) * pageSize;
             }
-            return visibleRows.slice(firstRow, lastRow);
+            return visibleRows.slice(firstRow, lastRow + 1);
           };
 
           grid.registerRowsProcessor(processPagination, 900 );
@@ -259,7 +260,8 @@
           if (gridUtil.isNullOrUndefined(gridOptions.paginationPageSize)) {
             if (gridOptions.paginationPageSizes.length > 0) {
               gridOptions.paginationPageSize = gridOptions.paginationPageSizes[0];
-            } else {
+            }
+            else {
               gridOptions.paginationPageSize = 0;
             }
           }
@@ -293,10 +295,10 @@
          * @param {int} pageSize requested page size
          */
         onPaginationChanged: function (grid, currentPage, pageSize) {
-            grid.api.pagination.raise.paginationChanged(currentPage, pageSize);
-            if (!grid.options.useExternalPagination) {
-              grid.queueGridRefresh(); //client side pagination
-            }
+          grid.api.pagination.raise.paginationChanged(currentPage, pageSize);
+          if (!grid.options.useExternalPagination) {
+            grid.queueGridRefresh(); // client side pagination
+          }
         }
       };
 
@@ -362,6 +364,7 @@
             gridUtil.getTemplate(uiGridCtrl.grid.options.paginationTemplate)
               .then(function (contents) {
                 var template = angular.element(contents);
+
                 $elm.append(template);
                 uiGridCtrl.innerCompile(template);
               });
@@ -378,26 +381,35 @@
    *
    *  @description Panel for handling pagination
    */
-  module.directive('uiGridPager', ['uiGridPaginationService', 'uiGridConstants', 'gridUtil', 'i18nService',
-    function (uiGridPaginationService, uiGridConstants, gridUtil, i18nService) {
+  module.directive('uiGridPager', ['uiGridPaginationService', 'uiGridConstants', 'gridUtil', 'i18nService', 'i18nConstants',
+    function (uiGridPaginationService, uiGridConstants, gridUtil, i18nService, i18nConstants) {
       return {
         priority: -200,
         scope: true,
         require: '^uiGrid',
         link: function ($scope, $elm, $attr, uiGridCtrl) {
           var defaultFocusElementSelector = '.ui-grid-pager-control-input';
-          $scope.aria = i18nService.getSafeText('pagination.aria'); //Returns an object with all of the aria labels
 
-          $scope.paginationApi = uiGridCtrl.grid.api.pagination;
-          $scope.sizesLabel = i18nService.getSafeText('pagination.sizes');
-          $scope.totalItemsLabel = i18nService.getSafeText('pagination.totalItems');
-          $scope.paginationOf = i18nService.getSafeText('pagination.of');
-          $scope.paginationThrough = i18nService.getSafeText('pagination.through');
+          $scope.aria = i18nService.getSafeText('pagination.aria'); // Returns an object with all of the aria labels
+
+          var updateLabels = function() {
+            $scope.paginationApi = uiGridCtrl.grid.api.pagination;
+            $scope.sizesLabel = i18nService.getSafeText('pagination.sizes');
+            $scope.totalItemsLabel = i18nService.getSafeText('pagination.totalItems');
+            $scope.paginationOf = i18nService.getSafeText('pagination.of');
+            $scope.paginationThrough = i18nService.getSafeText('pagination.through');
+          };
+
+          updateLabels();
+
+          $scope.$on(i18nConstants.UPDATE_EVENT, updateLabels);
 
           var options = uiGridCtrl.grid.options;
 
           uiGridCtrl.grid.renderContainers.body.registerViewportAdjuster(function (adjustment) {
-            adjustment.height = adjustment.height - gridUtil.elementHeight($elm, "padding");
+            if (options.enablePaginationControls) {
+              adjustment.height = adjustment.height - gridUtil.elementHeight($elm, "padding");
+            }
             return adjustment;
           });
 
@@ -410,23 +422,22 @@
           $scope.$on('$destroy', dataChangeDereg);
 
           var deregP = $scope.$watch('grid.options.paginationCurrentPage + grid.options.paginationPageSize', function (newValues, oldValues) {
-              if (newValues === oldValues || oldValues === undefined) {
-                return;
-              }
-
-              if (!angular.isNumber(options.paginationCurrentPage) || options.paginationCurrentPage < 1) {
-                options.paginationCurrentPage = 1;
-                return;
-              }
-
-              if (options.totalItems > 0 && options.paginationCurrentPage > $scope.paginationApi.getTotalPages()) {
-                options.paginationCurrentPage = $scope.paginationApi.getTotalPages();
-                return;
-              }
-
-              uiGridPaginationService.onPaginationChanged($scope.grid, options.paginationCurrentPage, options.paginationPageSize);
+            if (newValues === oldValues || oldValues === undefined) {
+              return;
             }
-          );
+
+            if (!angular.isNumber(options.paginationCurrentPage) || options.paginationCurrentPage < 1) {
+              options.paginationCurrentPage = 1;
+              return;
+            }
+
+            if (options.totalItems > 0 && options.paginationCurrentPage > $scope.paginationApi.getTotalPages()) {
+              options.paginationCurrentPage = $scope.paginationApi.getTotalPages();
+              return;
+            }
+
+            uiGridPaginationService.onPaginationChanged($scope.grid, options.paginationCurrentPage, options.paginationPageSize);
+          });
 
           $scope.$on('$destroy', function() {
             deregP();
@@ -435,13 +446,15 @@
           $scope.cantPageForward = function () {
             if ($scope.paginationApi.getTotalPages()) {
               return $scope.cantPageToLast();
-            } else {
+            }
+            else {
               return options.data.length < 1;
             }
           };
 
           $scope.cantPageToLast = function () {
             var totalPages = $scope.paginationApi.getTotalPages();
+
             return !totalPages || options.paginationCurrentPage >= totalPages;
           };
 
@@ -449,13 +462,13 @@
             return options.paginationCurrentPage <= 1;
           };
 
-          var focusToInputIf = function(condition){
-            if (condition){
+          var focusToInputIf = function(condition) {
+            if (condition) {
               gridUtil.focus.bySelector($elm, defaultFocusElementSelector);
             }
           };
 
-          //Takes care of setting focus to the middle element when focus is lost
+          // Takes care of setting focus to the middle element when focus is lost
           $scope.pageFirstPageClick = function () {
             $scope.paginationApi.seek(1);
             focusToInputIf($scope.cantPageBackward());
@@ -475,7 +488,6 @@
             $scope.paginationApi.seek($scope.paginationApi.getTotalPages());
             focusToInputIf($scope.cantPageToLast());
           };
-
         }
       };
     }

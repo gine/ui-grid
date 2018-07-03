@@ -99,7 +99,6 @@
           case uiGridCellNavConstants.direction.PG_DOWN:
             return this.getRowColPageDown(curRow, curCol);
         }
-
       };
 
       UiGridCellNav.prototype.initializeSelection = function () {
@@ -109,9 +108,7 @@
           return null;
         }
 
-        var curRowIndex = 0;
-        var curColIndex = 0;
-        return new GridRowColumn(focusableRows[0], focusableCols[0]); //return same row
+        return new GridRowColumn(focusableRows[0], focusableCols[0]); // return same row
       };
 
       UiGridCellNav.prototype.getRowColLeft = function (curRow, curCol) {
@@ -120,24 +117,24 @@
         var curColIndex = focusableCols.indexOf(curCol);
         var curRowIndex = focusableRows.indexOf(curRow);
 
-        //could not find column in focusable Columns so set it to 1
+        // could not find column in focusable Columns so set it to 1
         if (curColIndex === -1) {
           curColIndex = 1;
         }
 
         var nextColIndex = curColIndex === 0 ? focusableCols.length - 1 : curColIndex - 1;
 
-        //get column to left
+        // get column to left
         if (nextColIndex >= curColIndex) {
           // On the first row
           // if (curRowIndex === 0 && curColIndex === 0) {
           //   return null;
           // }
           if (curRowIndex === 0) {
-            return new GridRowColumn(curRow, focusableCols[nextColIndex]); //return same row
+            return new GridRowColumn(curRow, focusableCols[nextColIndex]); // return same row
           }
           else {
-            //up one row and far right column
+            // up one row and far right column
             return new GridRowColumn(focusableRows[curRowIndex - 1], focusableCols[nextColIndex]);
           }
         }
@@ -154,7 +151,7 @@
         var curColIndex = focusableCols.indexOf(curCol);
         var curRowIndex = focusableRows.indexOf(curRow);
 
-        //could not find column in focusable Columns so set it to 0
+        // could not find column in focusable Columns so set it to 0
         if (curColIndex === -1) {
           curColIndex = 0;
         }
@@ -162,10 +159,10 @@
 
         if (nextColIndex <= curColIndex) {
           if (curRowIndex === focusableRows.length - 1) {
-            return new GridRowColumn(curRow, focusableCols[nextColIndex]); //return same row
+            return new GridRowColumn(curRow, focusableCols[nextColIndex]); // return same row
           }
           else {
-            //down one row and far left column
+            // down one row and far left column
             return new GridRowColumn(focusableRows[curRowIndex + 1], focusableCols[nextColIndex]);
           }
         }
@@ -180,16 +177,16 @@
         var curColIndex = focusableCols.indexOf(curCol);
         var curRowIndex = focusableRows.indexOf(curRow);
 
-        //could not find column in focusable Columns so set it to 0
+        // could not find column in focusable Columns so set it to 0
         if (curColIndex === -1) {
           curColIndex = 0;
         }
 
         if (curRowIndex === focusableRows.length - 1) {
-          return new GridRowColumn(curRow, focusableCols[curColIndex]); //return same row
+          return new GridRowColumn(curRow, focusableCols[curColIndex]); // return same row
         }
         else {
-          //down one row
+          // down one row
           return new GridRowColumn(focusableRows[curRowIndex + 1], focusableCols[curColIndex]);
         }
       };
@@ -200,17 +197,17 @@
         var curColIndex = focusableCols.indexOf(curCol);
         var curRowIndex = focusableRows.indexOf(curRow);
 
-        //could not find column in focusable Columns so set it to 0
+        // could not find column in focusable Columns so set it to 0
         if (curColIndex === -1) {
           curColIndex = 0;
         }
 
         var pageSize = this.bodyContainer.minRowsToRender();
         if (curRowIndex >= focusableRows.length - pageSize) {
-          return new GridRowColumn(focusableRows[focusableRows.length - 1], focusableCols[curColIndex]); //return last row
+          return new GridRowColumn(focusableRows[focusableRows.length - 1], focusableCols[curColIndex]); // return last row
         }
         else {
-          //down one page
+          // down one page
           return new GridRowColumn(focusableRows[curRowIndex + pageSize], focusableCols[curColIndex]);
         }
       };
@@ -221,16 +218,16 @@
         var curColIndex = focusableCols.indexOf(curCol);
         var curRowIndex = focusableRows.indexOf(curRow);
 
-        //could not find column in focusable Columns so set it to 0
+        // could not find column in focusable Columns so set it to 0
         if (curColIndex === -1) {
           curColIndex = 0;
         }
 
         if (curRowIndex === 0) {
-          return new GridRowColumn(curRow, focusableCols[curColIndex]); //return same row
+          return new GridRowColumn(curRow, focusableCols[curColIndex]); // return same row
         }
         else {
-          //up one row
+          // up one row
           return new GridRowColumn(focusableRows[curRowIndex - 1], focusableCols[curColIndex]);
         }
       };
@@ -241,17 +238,17 @@
         var curColIndex = focusableCols.indexOf(curCol);
         var curRowIndex = focusableRows.indexOf(curRow);
 
-        //could not find column in focusable Columns so set it to 0
+        // could not find column in focusable Columns so set it to 0
         if (curColIndex === -1) {
           curColIndex = 0;
         }
 
         var pageSize = this.bodyContainer.minRowsToRender();
         if (curRowIndex - pageSize < 0) {
-          return new GridRowColumn(focusableRows[0], focusableCols[curColIndex]); //return first row
+          return new GridRowColumn(focusableRows[0], focusableCols[curColIndex]); // return first row
         }
         else {
-          //up one page
+          // up one page
           return new GridRowColumn(focusableRows[curRowIndex - pageSize], focusableCols[curColIndex]);
         }
       };
@@ -275,8 +272,8 @@
 
 
           /**
-           *  @ngdoc object
-           *  @name ui.grid.cellNav:Grid.cellNav
+           * @ngdoc object
+           * @name ui.grid.cellNav.Grid:cellNav
            * @description cellNav properties added to grid class
            */
           grid.cellNav = {};
@@ -300,7 +297,7 @@
                  * @eventOf  ui.grid.cellNav.api:PublicApi
                  * @description raised when the active cell is changed
                  * <pre>
-                 *      gridApi.cellNav.on.navigate(scope,function(newRowcol, oldRowCol){})
+                 *      gridApi.cellNav.on.navigate(scope,function(newRowcol, oldRowCol) {})
                  * </pre>
                  * @param {object} newRowCol new position
                  * @param {object} oldRowCol old position
@@ -380,7 +377,7 @@
                  * @param {object} rowCol the rowCol to evaluate
                  */
                 rowColSelectIndex: function (rowCol) {
-                  //return gridUtil.arrayContainsObjectWithProperty(grid.cellNav.focusedCells, 'col.uid', rowCol.col.uid) &&
+                  // return gridUtil.arrayContainsObjectWithProperty(grid.cellNav.focusedCells, 'col.uid', rowCol.col.uid) &&
                   var index = -1;
                   for (var i = 0; i < grid.cellNav.focusedCells.length; i++) {
                     if (grid.cellNav.focusedCells[i].col.uid === rowCol.col.uid &&
@@ -398,7 +395,6 @@
           grid.api.registerEventsFromObject(publicApi.events);
 
           grid.api.registerMethodsFromObject(publicApi.methods);
-
         },
 
         defaultGridOptions: function (gridOptions) {
@@ -418,7 +414,7 @@
            *  <br/>Defaults to false
            */
           gridOptions.modifierKeysToMultiSelectCells = gridOptions.modifierKeysToMultiSelectCells === true;
-          
+
           /**
            *  @ngdoc array
            *  @name keyDownOverrides
@@ -474,7 +470,7 @@
             return uiGridCellNavConstants.direction.UP;
           }
 
-          if (evt.keyCode === uiGridConstants.keymap.PG_UP){
+          if (evt.keyCode === uiGridConstants.keymap.PG_UP) {
             return uiGridCellNavConstants.direction.PG_UP;
           }
 
@@ -483,7 +479,7 @@
             return uiGridCellNavConstants.direction.DOWN;
           }
 
-          if (evt.keyCode === uiGridConstants.keymap.PG_DOWN){
+          if (evt.keyCode === uiGridConstants.keymap.PG_DOWN) {
             return uiGridCellNavConstants.direction.PG_DOWN;
           }
 
@@ -547,12 +543,9 @@
 
             // Broadcast the navigation
             if (gridRow !== null && gridCol !== null) {
-              grid.cellNav.broadcastCellNav(rowCol);
+              grid.cellNav.broadcastCellNav(rowCol, null, null);
             }
           });
-
-
-
         },
 
 
@@ -568,7 +561,7 @@
          * we include (thisColIndex / totalNumberCols) % of this column width
          * @param {Grid} grid the grid you'd like to act upon, usually available
          * from gridApi.grid
-         * @param {gridCol} upToCol the column to total up to and including
+         * @param {GridColumn} upToCol the column to total up to and including
          */
         getLeftWidth: function (grid, upToCol) {
           var width = 0;
@@ -581,7 +574,7 @@
 
           // total column widths up-to but not including the passed in column
           grid.renderContainers.body.visibleColumnCache.forEach( function( col, index ) {
-            if ( index < lastIndex ){
+            if ( index < lastIndex ) {
               width += col.drawnWidth;
             }
           });
@@ -629,8 +622,8 @@
    </file>
    </example>
    */
-  module.directive('uiGridCellnav', ['gridUtil', 'uiGridCellNavService', 'uiGridCellNavConstants', 'uiGridConstants', 'GridRowColumn', '$timeout', '$compile',
-    function (gridUtil, uiGridCellNavService, uiGridCellNavConstants, uiGridConstants, GridRowColumn, $timeout, $compile) {
+  module.directive('uiGridCellnav', ['gridUtil', 'uiGridCellNavService', 'uiGridCellNavConstants', 'uiGridConstants', 'GridRowColumn', '$timeout', '$compile', 'i18nService',
+    function (gridUtil, uiGridCellNavService, uiGridCellNavConstants, uiGridConstants, GridRowColumn, $timeout, $compile, i18nService) {
       return {
         replace: true,
         priority: -150,
@@ -647,7 +640,7 @@
 
               uiGridCtrl.cellNav = {};
 
-              //Ensure that the object has all of the methods we expect it to
+              // Ensure that the object has all of the methods we expect it to
               uiGridCtrl.cellNav.makeRowCol = function (obj) {
                 if (!(obj instanceof GridRowColumn)) {
                   obj = new GridRowColumn(obj.row, obj.col);
@@ -657,7 +650,7 @@
 
               uiGridCtrl.cellNav.getActiveCell = function () {
                 var elms = $elm[0].getElementsByClassName('ui-grid-cell-focus');
-                if (elms.length > 0){
+                if (elms.length > 0) {
                   return elms[0];
                 }
 
@@ -688,10 +681,10 @@
 
                 var rowColSelectIndex = uiGridCtrl.grid.api.cellNav.rowColSelectIndex(rowCol);
 
-                if (grid.cellNav.lastRowCol === null || rowColSelectIndex === -1) {
+                if (grid.cellNav.lastRowCol === null || rowColSelectIndex === -1 || (grid.cellNav.lastRowCol.col === col && grid.cellNav.lastRowCol.row === row)) {
                   var newRowCol = new GridRowColumn(row, col);
 
-                  if (grid.cellNav.lastRowCol === null || grid.cellNav.lastRowCol.row !== newRowCol.row || grid.cellNav.lastRowCol.col !== newRowCol.col){
+                  if (grid.cellNav.lastRowCol === null || grid.cellNav.lastRowCol.row !== newRowCol.row || grid.cellNav.lastRowCol.col !== newRowCol.col || grid.options.enableCellEditOnFocus) {
                     grid.api.cellNav.raise.navigate(newRowCol, grid.cellNav.lastRowCol, originEvt);
                     grid.cellNav.lastRowCol = newRowCol;
                   }
@@ -769,19 +762,29 @@
               };
             },
             post: function ($scope, $elm, $attrs, uiGridCtrl) {
-              var _scope = $scope;
               var grid = uiGridCtrl.grid;
+              var usesAria = true;
 
-              function addAriaLiveRegion(){
+              // Detect whether we are using ngAria
+              // (if ngAria module is not used then the stuff inside addAriaLiveRegion
+              // is not used and provides extra fluff)
+              try {
+                angular.module('ngAria');
+              }
+              catch (err) {
+                usesAria = false;
+              }
+
+              function addAriaLiveRegion() {
                 // Thanks to google docs for the inspiration behind how to do this
                 // XXX: Why is this entire mess nessasary?
                 // Because browsers take a lot of coercing to get them to read out live regions
-                //http://www.paciellogroup.com/blog/2012/06/html5-accessibility-chops-aria-rolealert-browser-support/
+                // http://www.paciellogroup.com/blog/2012/06/html5-accessibility-chops-aria-rolealert-browser-support/
                 var ariaNotifierDomElt = '<div ' +
                                            'id="' + grid.id +'-aria-speakable" ' +
                                            'class="ui-grid-a11y-ariascreenreader-speakable ui-grid-offscreen" ' +
                                            'aria-live="assertive" ' +
-                                           'role="region" ' +
+                                           'role="alert" ' +
                                            'aria-atomic="true" ' +
                                            'aria-hidden="false" ' +
                                            'aria-relevant="additions" ' +
@@ -800,10 +803,10 @@
                    * use the alert to notify the user of the movement.
                    * In all other cases we do want a notification event.
                    */
-                  if (originEvt && originEvt.type === 'focus'){return;}
+                  if (originEvt && originEvt.type === 'focus') {return;}
 
-                  function setNotifyText(text){
-                    if (text === ariaNotifier.text()){return;}
+                  function setNotifyText(text) {
+                    if (text === ariaNotifier.text().trim()) {return;}
                     ariaNotifier[0].style.clip = 'rect(0px,0px,0px,0px)';
                     /*
                      * This is how google docs handles clearing the div. Seems to work better than setting the text of the div to ''
@@ -811,7 +814,7 @@
                     ariaNotifier[0].innerHTML = "";
                     ariaNotifier[0].style.visibility = 'hidden';
                     ariaNotifier[0].style.visibility = 'visible';
-                    if (text !== ''){
+                    if (text !== '') {
                       ariaNotifier[0].style.clip = 'auto';
                       /*
                        * The space after the text is something that google docs does.
@@ -822,17 +825,37 @@
                     }
                   }
 
+                  function getAppendedColumnHeaderText(col) {
+                    return ', ' + i18nService.getSafeText('headerCell.aria.column') + ' ' + col.displayName;
+                  }
+
+                  function getCellDisplayValue(currentRowColumn) {
+                    if (currentRowColumn.col.field === 'selectionRowHeaderCol') {
+                      // This is the case when the 'selection' feature is used in the grid and the user has moved
+                      // to or inside of the left grid container which holds the checkboxes for selecting rows.
+                      // This is necessary for Accessibility. Without this a screen reader cannot determine if the row
+                      // is or is not currently selected.
+                        return currentRowColumn.row.isSelected ? i18nService.getSafeText('search.aria.selected') : i18nService.getSafeText('search.aria.notSelected');
+                      } else {
+                        return grid.getCellDisplayValue(currentRowColumn.row, currentRowColumn.col);
+                      }
+                    }
+
                   var values = [];
                   var currentSelection = grid.api.cellNav.getCurrentSelection();
                   for (var i = 0; i < currentSelection.length; i++) {
-                    values.push(grid.getCellDisplayValue(currentSelection[i].row, currentSelection[i].col));
+                    var cellDisplayValue = getCellDisplayValue(currentSelection[i]) + getAppendedColumnHeaderText(currentSelection[i].col);
+                    values.push(cellDisplayValue);
                   }
                   var cellText = values.toString();
                   setNotifyText(cellText);
 
                 });
               }
-              addAriaLiveRegion();
+              // Only add the ngAria stuff it will be used
+              if (usesAria) {
+                addAriaLiveRegion();
+              }
             }
           };
         }
@@ -843,7 +866,7 @@
     function ($timeout, $document, gridUtil, uiGridConstants, uiGridCellNavService, $compile, uiGridCellNavConstants) {
       return {
         replace: true,
-        priority: -99999, //this needs to run very last
+        priority: -99999, // this needs to run very last
         require: ['^uiGrid', 'uiGridRenderContainer', '?^uiGridCellnav'],
         scope: false,
         compile: function () {
@@ -860,7 +883,7 @@
 
               var grid = uiGridCtrl.grid;
 
-              //run each time a render container is created
+              // run each time a render container is created
               uiGridCellNavService.decorateRenderContainers(grid);
 
               // focusser only created for body
@@ -868,15 +891,14 @@
                 return;
               }
 
-
-
-              if (uiGridCtrl.grid.options.modifierKeysToMultiSelectCells){
+              if (uiGridCtrl.grid.options.modifierKeysToMultiSelectCells) {
                 $elm.attr('aria-multiselectable', true);
-              } else {
+              }
+              else {
                 $elm.attr('aria-multiselectable', false);
               }
 
-              //add an element with no dimensions that can be used to set focus and capture keystrokes
+              // add an element with no dimensions that can be used to set focus and capture keystrokes
               var focuser = $compile('<div class="ui-grid-focuser" role="region" aria-live="assertive" aria-atomic="false" tabindex="0" aria-controls="' + grid.id +'-aria-speakable '+ grid.id + '-grid-container' +'" aria-owns="' + grid.id + '-grid-container' + '"></div>')($scope);
               $elm.append(focuser);
 
@@ -891,12 +913,12 @@
                 }
               });
 
-              uiGridCellnavCtrl.setAriaActivedescendant = function(id){
+              uiGridCellnavCtrl.setAriaActivedescendant = function(id) {
                 $elm.attr('aria-activedescendant', id);
               };
 
-              uiGridCellnavCtrl.removeAriaActivedescendant = function(id){
-                if ($elm.attr('aria-activedescendant') === id){
+              uiGridCellnavCtrl.removeAriaActivedescendant = function(id) {
+                if ($elm.attr('aria-activedescendant') === id) {
                   $elm.attr('aria-activedescendant', '');
                 }
               };
@@ -904,7 +926,7 @@
 
               uiGridCtrl.focus = function () {
                 gridUtil.focus.byElement(focuser[0]);
-                //allow for first time grid focus
+                // allow for first time grid focus
               };
 
               var viewPortKeyDownWasRaisedForRowCol = null;
@@ -913,47 +935,46 @@
                 evt.uiGridTargetRenderContainerId = containerId;
                 var rowCol = uiGridCtrl.grid.api.cellNav.getFocusedCell();
                 var raiseViewPortKeyDown = uiGridCtrl.grid.options.keyDownOverrides.some(function (override) {
-                    return Object.keys(override).every( function (property) {
-                        return override[property] === evt[property];
-                    });
+                  return Object.keys(override).every( function (property) {
+                      return override[property] === evt[property];
+                  });
                 });
                 var result = raiseViewPortKeyDown ? null : uiGridCtrl.cellNav.handleKeyDown(evt);
                 if (result === null) {
-                  uiGridCtrl.grid.api.cellNav.raise.viewPortKeyDown(evt, rowCol);
+                  uiGridCtrl.grid.api.cellNav.raise.viewPortKeyDown(evt, rowCol, uiGridCtrl.cellNav.handleKeyDown);
                   viewPortKeyDownWasRaisedForRowCol = rowCol;
                 }
               });
-              //Bind to keypress events in the render container
-              //keypress events are needed by edit function so the key press
-              //that initiated an edit is not lost
-              //must fire the event in a timeout so the editor can
-              //initialize and subscribe to the event on another event loop
+              // Bind to keypress events in the render container
+              // keypress events are needed by edit function so the key press
+              // that initiated an edit is not lost
+              // must fire the event in a timeout so the editor can
+              // initialize and subscribe to the event on another event loop
               focuser.on('keypress', function (evt) {
                 if (viewPortKeyDownWasRaisedForRowCol) {
                   $timeout(function () {
                     uiGridCtrl.grid.api.cellNav.raise.viewPortKeyPress(evt, viewPortKeyDownWasRaisedForRowCol);
-                  },4);
+                  }, 4);
 
                   viewPortKeyDownWasRaisedForRowCol = null;
                 }
               });
 
-              $scope.$on('$destroy', function(){
-                //Remove all event handlers associated with this focuser.
+              $scope.$on('$destroy', function() {
+                // Remove all event handlers associated with this focuser.
                 focuser.off();
               });
-
             }
           };
         }
       };
     }]);
 
-  module.directive('uiGridViewport', ['$timeout', '$document', 'gridUtil', 'uiGridConstants', 'uiGridCellNavService', 'uiGridCellNavConstants','$log','$compile',
-    function ($timeout, $document, gridUtil, uiGridConstants, uiGridCellNavService, uiGridCellNavConstants, $log, $compile) {
+  module.directive('uiGridViewport',
+    function () {
       return {
         replace: true,
-        priority: -99999, //this needs to run very last
+        priority: -99999, // this needs to run very last
         require: ['^uiGrid', '^uiGridRenderContainer', '?^uiGridCellnav'],
         scope: false,
         compile: function () {
@@ -968,14 +989,14 @@
               if (!uiGridCtrl.grid.api.cellNav) { return; }
 
               var containerId = renderContainerCtrl.containerId;
-              //no need to process for other containers
+              // no need to process for other containers
               if (containerId !== 'body') {
                 return;
               }
 
               var grid = uiGridCtrl.grid;
 
-              grid.api.core.on.scrollBegin($scope, function (args) {
+              grid.api.core.on.scrollBegin($scope, function () {
 
                 // Skip if there's no currently-focused cell
                 var lastRowCol = uiGridCtrl.grid.api.cellNav.getFocusedCell();
@@ -983,8 +1004,8 @@
                   return;
                 }
 
-                //if not in my container, move on
-                //todo: worry about horiz scroll
+                // if not in my container, move on
+                // todo: worry about horiz scroll
                 if (!renderContainerCtrl.colContainer.containsColumn(lastRowCol.col)) {
                   return;
                 }
@@ -1000,26 +1021,24 @@
                   return;
                 }
 
-                //if not in my container, move on
-                //todo: worry about horiz scroll
+                // if not in my container, move on
+                // todo: worry about horiz scroll
                 if (!renderContainerCtrl.colContainer.containsColumn(lastRowCol.col)) {
                   return;
                 }
 
                 uiGridCtrl.cellNav.broadcastCellNav(lastRowCol);
-
               });
 
               grid.api.cellNav.on.navigate($scope, function () {
-                //focus again because it can be lost
+                // focus again because it can be lost
                  uiGridCtrl.focus();
               });
-
             }
           };
         }
       };
-    }]);
+    });
 
   /**
    *  @ngdoc directive
@@ -1045,7 +1064,7 @@
             return;
           }
 
-          //Convinience local variables
+          // Convinience local variables
           var grid = uiGridCtrl.grid;
           $scope.focused = false;
 
@@ -1069,7 +1088,7 @@
            */
           $elm.on('mousedown', preventMouseDown);
 
-          //turn on and off for edit events
+          // turn on and off for edit events
           if (uiGridCtrl.grid.api.edit) {
             uiGridCtrl.grid.api.edit.on.beginCellEdit($scope, function () {
               $elm.off('mousedown', preventMouseDown);
@@ -1089,12 +1108,12 @@
           refreshCellFocus();
 
           function preventMouseDown(evt) {
-            //Prevents the foucus event from firing if the click event is already going to fire.
-            //If both events fire it will cause bouncing behavior.
+            // Prevents the foucus event from firing if the click event is already going to fire.
+            // If both events fire it will cause bouncing behavior.
             evt.preventDefault();
           }
 
-          //You can only focus on elements with a tabindex value
+          // You can only focus on elements with a tabindex value
           $elm.on('focus', function (evt) {
             uiGridCtrl.cellNav.broadcastCellNav(new GridRowColumn($scope.row, $scope.col), false, evt);
             evt.stopPropagation();
@@ -1110,7 +1129,7 @@
             // a short period of time (from now until $timeout function executed)
             clearFocus();
 
-            $timeout(refreshCellFocus);
+            $scope.$applyAsync(refreshCellFocus);
           }, [uiGridConstants.dataChange.ROW]);
 
           function refreshCellFocus() {
@@ -1125,7 +1144,7 @@
           }
 
           function setFocused() {
-            if (!$scope.focused){
+            if (!$scope.focused) {
               var div = $elm.find('div');
               div.addClass('ui-grid-cell-focus');
               $elm.attr('aria-selected', true);
@@ -1135,7 +1154,7 @@
           }
 
           function clearFocus() {
-            if ($scope.focused){
+            if ($scope.focused) {
               var div = $elm.find('div');
               div.removeClass('ui-grid-cell-focus');
               $elm.attr('aria-selected', false);
@@ -1147,12 +1166,11 @@
           $scope.$on('$destroy', function () {
             dataChangeDereg();
 
-            //.off withouth paramaters removes all handlers
+            // .off withouth paramaters removes all handlers
             $elm.find('div').off();
             $elm.off();
           });
         }
       };
     }]);
-
 })();

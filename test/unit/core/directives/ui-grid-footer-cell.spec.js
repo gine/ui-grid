@@ -1,19 +1,19 @@
 describe('uiGridFooterCell', function () {
-  var grid, data, columnDefs, $scope, $compile, $document, recompile, uiGridConstants;
+  var grid, data, columnDefs, $scope, $compile, $document, recompile, uiGridConstants, $httpBackend;
 
   data = [
-    { "name": "Bob", "age": 35 },
-    { "name": "Bill", "age": 25 },
-    { "name": "Sam", "age": 17 },
-    { "name": "Jane", "age": 19 }
+    { name: 'Bob', age: 35 },
+    { name: 'Bill', age: 25 },
+    { name: 'Sam', age: 17 },
+    { name: 'Jane', age: 19 }
   ];
 
   columnDefs = [
     { name: 'name', footerCellClass: 'testClass' },
     {
       name: 'age',
-      footerCellClass: function(grid, row, col, rowRenderIndex, colRenderIndex) {
-        if ( col.colDef.noClass ){
+      footerCellClass: function(grid, row, col) {
+        if ( col.colDef.noClass ) {
           return '';
         } else {
           return 'funcCellClass';
@@ -24,17 +24,18 @@ describe('uiGridFooterCell', function () {
 
   beforeEach(module('ui.grid'));
 
-  beforeEach(inject(function (_$compile_, $rootScope, _$document_, _uiGridConstants_) {
+  beforeEach(inject(function (_$compile_, $rootScope, _$document_, _uiGridConstants_, _$httpBackend_) {
     $scope = $rootScope;
     $compile = _$compile_;
     $document = _$document_;
     uiGridConstants = _uiGridConstants_;
+    $httpBackend = _$httpBackend_;
 
     $scope.gridOpts = {
       showColumnFooter: true,
       columnDefs: columnDefs,
       data: data,
-      onRegisterApi: function( gridApi ){ $scope.gridApi = gridApi; }
+      onRegisterApi: function( gridApi ) { $scope.gridApi = gridApi; }
     };
 
     $scope.extScope = 'test';
@@ -78,12 +79,29 @@ describe('uiGridFooterCell', function () {
 
   describe('externalScope', function() {
     it('should be present', function () {
-      var elm = recompile();
-
       var header = $(grid).find('.ui-grid-header-cell:nth(0)');
+
       expect(header).toBeDefined();
       expect(header.scope().grid.appScope).toBeDefined();
       expect(header.scope().grid.appScope.extScope).toBe('test');
+    });
+  });
+
+  describe('should handle a URL-based template defined in headerCellTemplate', function () {
+    it('should handle', function () {
+      var el, url = 'http://www.a-really-fake-url.com/footerCellTemplate.html';
+
+      $scope.gridOpts.columnDefs[0].footerCellTemplate = url;
+
+      $httpBackend.expectGET(url).respond('<div class="footerCellTemplate">footerCellTemplate content</div>');
+      recompile();
+
+      el = $(grid).find('.footerCellTemplate');
+      expect(el.text()).toEqual('');
+
+      $httpBackend.flush();
+      el = $(grid).find('.footerCellTemplate');
+      expect(el.text()).toEqual('footerCellTemplate content');
     });
   });
 });
